@@ -16,8 +16,6 @@ OandaReports.  Open source tool for reporting Oanda trading
 .. image:: https://api.codeclimate.com/v1/badges/14f80df17e87c4c3510e/test_coverage
     :target: https://codeclimate.com/github/oeyvindds/oandareports/test_coverage
 
-*) Replace tokens
-
 PURPOSE
 -------
 

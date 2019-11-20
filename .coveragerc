@@ -3,4 +3,5 @@ omit =
     */tests.py
     */test_*.py
     */*_tests.py
-    .tox/*
+    __init__.py
+    __main__.py
