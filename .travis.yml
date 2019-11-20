@@ -9,7 +9,6 @@ install:
 
 stages:
 - test
-- answers
 
 branches:
   only:
@@ -29,6 +28,3 @@ jobs:
     after_script:
     - "./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT"
 
-  - stage: answers
-    script:
-      #- python3 tests

@@ -6,11 +6,15 @@ verify_ssl = true
 [dev-packages]
 pytest = "*"
 pytest-cov = "*"
-
+moto = "*"
 
 [packages]
 setuptools-scm = "*"
 pandas = {editable = true,version = "*"}
+csci-utils = {editable = true,git = "https://github.com/csci-e-29/2019fa-csci-utils-oeyvindds"}
+luigi = "*"
+oandapyv20 = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.7"
