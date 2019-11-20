@@ -31,4 +31,4 @@ jobs:
 
   - stage: answers
     script:
-      - python3 tests
+      #- python3 tests
