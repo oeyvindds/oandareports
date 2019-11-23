@@ -1,46 +1,111 @@
 import os
+import shutil
+from tqdm import tqdm
 from luigi.parameter import Parameter
 from luigi import Task, ExternalTask
+import pandas as pd
+import dask.dataframe as dd
+from oandapyV20 import API
+import oandapyV20.endpoints.transactions as transactions
 from oandareports.helperfiles.task import TargetOutput, Requires, Requirement
 from oandareports.helperfiles.target import ParquetTarget
 
+# Todo: Add commenting
 
-class ExistingHistoryS3(ExternalTask):
-    """Ensure that the file exist"""
+class S3(ExternalTask):
+    output = TargetOutput(os.getenv('S3_location')+'tradinghistory/', target_class=ParquetTarget)
 
-    output = TargetOutput("s3://advpython/oanda/tradinghistory/", target_class=ParquetTarget)
+class archieve(Task):
+    output = TargetOutput(os.getenv('local_location')+'archive/', target_class=ParquetTarget)
 
-class ExistingHistoryLocal(ExternalTask):
-    """Ensure that the file exist"""
+class DownloadS3(ExternalTask):
+    requires = Requires()
+    other = Requirement(S3)
 
-    output = TargetOutput("data/", target_class=ParquetTarget)
+    if ParquetTarget(os.getenv('local_location') + 'archive/').exists():
+        shutil.rmtree(os.getenv('local_location') + 'archive/')
+
+    # Set output location
+    output = TargetOutput(os.getenv('local_location')+'archive/', target_class=ParquetTarget)
+
+    def run(self):
+        input_target = next(iter(self.input().items()))[1]
+        dsk = input_target.read()
+        self.output().write(dsk)
+
 
 class GetTradingHistory(Task):
 
-    # Use parameter --storage s3 if output should be stored at ASW S3
-    # If no history exist; use s3initial or initial for local
     storage = Parameter(default='')
 
+    client = API(access_token=os.getenv('TOKEN'))
 
-    requires = Requires()
+    output = TargetOutput(os.getenv('local_location') + 'archive/', target_class=ParquetTarget)
+    store = TargetOutput(os.getenv('local_location'), target_class=ParquetTarget)
+    s3store = TargetOutput(os.getenv('S3_location') + 'tradinghistory/', target_class=ParquetTarget)
 
-    # TODO: Fix parameter
-    if storage == 's3':
-        other = Requirement(ExistingHistoryS3)
-        output = TargetOutput("s3://advpython/oanda/tradinghistory/", target_class=ParquetTarget)
-    elif storage == 's3initial':
-        output = TargetOutput("s3://advpython/oanda/tradinghistory/", target_class=ParquetTarget)
-    elif storage == 'initial':
-        if not os.path.isdir('data/'):
-            os.mkdir('data/')
-        output = TargetOutput("data/", target_class=ParquetTarget)
-    else:
-        print(storage)
-        other = Requirement(ExistingHistoryLocal)
-        output = TargetOutput("data/", target_class=ParquetTarget)
+
+
+    def requires(self):
+        if self.storage == 's3':
+            if ParquetTarget(os.getenv('S3_location')+'tradinghistory/').exists():
+                return [DownloadS3(), archieve()]
+        else:
+            if ParquetTarget(os.getenv('local_location') + 'archive/').exists():
+                return archieve()
+
+
+    def gettransaction(self, first, last):
+        trans = transactions.TransactionIDRange(accountID=os.getenv('ACCOUNT_ID'), params={"from": first, "to": last})
+        trans = self.client.request(trans)
+
+        return trans
 
     def run(self):
-        # As the input target is a dict, we need to get the item out
-        input_target = next(iter(self.input().items()))[1]
+        last_trans = int(self.gettransaction(1, 2)['lastTransactionID'])
+        pbar = tqdm(last_trans)
+        if ParquetTarget(os.getenv('local_location') + 'archive/').exists():
+            input_target = next(iter(self.input()))
+            dsk = input_target.read()
+            last_trans = 15000
+        else:
+            trans_df = self.gettransaction(1, 1000)
+            df = pd.DataFrame(trans_df['transactions'])
+            dsk = dd.from_pandas(df, chunksize=10000)
+            last_trans = 15000
 
-        print(input_target)
+        while int(dsk['id'].astype('int64').max().compute()) < last_trans:
+            last_recorded = int(dsk['id'].astype('int64').max().compute())
+            trans_df = self.gettransaction(last_recorded, last_recorded + 999)
+            df = pd.DataFrame(trans_df['transactions'])
+            # TODO: Improve this code
+            for i in ['takeProfitOnFill', 'fullPrice', 'tradeOpened', 'positionFinancings', 'tradeReduced', 'tradesClosed']:
+                try:
+                    df = df.drop(columns=i)
+                except:
+                    pass
+
+            dsk = dd.concat([dsk, df])
+
+            pbar.update(1000)
+
+        # Todo: Rewrite
+        for i in ['takeProfitOnFill', 'fullPrice', 'tradeOpened', 'positionFinancings', 'tradeReduced', 'tradesClosed']:
+            try:
+                dsk = dsk.drop(i, axis =1)
+            except:
+                pass
+        self.store().write(dsk)
+
+        if self.storage == 's3':
+            self.s3store().write(dsk)
+            shutil.rmtree(os.getenv('local_location') + 'archive/')
+        print('Finished writing to S3')
+
+
+
+
+
+
+
+
