@@ -13,6 +13,9 @@ from oandareports.helperfiles.target import ParquetTarget
 
 # Todo: Add comments
 
+# Todo: Add parameter to delete local copy
+# Todo: Automatic deletion of S3 after download
+
 class S3(ExternalTask):
     output = TargetOutput(os.getenv('S3_location')+'historicdata/', target_class=ParquetTarget)
 
