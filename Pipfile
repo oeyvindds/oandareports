@@ -19,6 +19,8 @@ fastparquet = "*"
 s3fs = "*"
 tqdm = "*"
 gevent = "*"
+seaborn = "*"
+matplotlib = "*"
 
 [requires]
 python_version = "3.7"
