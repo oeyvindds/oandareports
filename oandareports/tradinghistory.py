@@ -11,6 +11,9 @@ from oandareports.helperfiles.task import TargetOutput, Requires, Requirement
 from oandareports.helperfiles.target import ParquetTarget
 
 # Todo: Add commenting
+# Todo: Add parameter for limiting number of trades for downloading
+
+# pipenv run luigi --module tradinghistory GetTradingHistory --local-scheduler
 
 class S3(ExternalTask):
     output = TargetOutput(os.getenv('S3_location')+'tradinghistory/', target_class=ParquetTarget)
@@ -67,12 +70,12 @@ class GetTradingHistory(Task):
         if ParquetTarget(os.getenv('local_location') + 'archive/').exists():
             input_target = next(iter(self.input()))
             dsk = input_target.read()
-            last_trans = 15000
+            #last_trans = 15000
         else:
             trans_df = self.gettransaction(1, 1000)
             df = pd.DataFrame(trans_df['transactions'])
             dsk = dd.from_pandas(df, chunksize=10000)
-            last_trans = 15000
+            #last_trans = 15000
 
         while int(dsk['id'].astype('int64').max().compute()) < last_trans:
             last_recorded = int(dsk['id'].astype('int64').max().compute())
