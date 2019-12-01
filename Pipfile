@@ -18,6 +18,7 @@ dask = {extras = ["dataframe"],version = "*"}
 fastparquet = "*"
 s3fs = "*"
 tqdm = "*"
+gevent = "*"
 
 [requires]
 python_version = "3.7"
