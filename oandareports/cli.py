@@ -1,6 +1,8 @@
 import argparse
 from luigi import build
 from historicrates import GetHistoricRates
+from tradinghistory import GetTradingHistory
+from reports.volatility import VolatilityReport
 
 #def main():
 
@@ -13,13 +15,15 @@ my_parser = argparse.ArgumentParser(description='CLI for Oandareports')
   #                     metavar='function',
    #                    help="""The function you want to run: Alternatives are 'historic' for historic rates,""")
 #
-my_parser.add_argument('function', action='store', nargs=2, help="""The function you want to run: Alternatives are 'historic' for historic rates,""")
+my_parser.add_argument('function', action='store', nargs=2, help="""The function you want to run: Alternatives 
+are 'historic' for historic rates, 'trading' for trading history, 'streaming' for streaming rates, 'volatility' for volatility report""")
 
 my_parser.add_argument('-i',
                        '--instrument',
                        type=str,
                        metavar='instrument',
                        nargs=1,
+                       action='append',
                        help='Instrument; for example EUR_USD or BCO_USD')
 
 my_parser.add_argument('-g',
@@ -46,7 +50,15 @@ if args.function[1] == 'historic':
     granularity = args.granularity[0]
     task = build([GetHistoricRates(instrument=instrument, granularity=granularity)], local_scheduler=True)
 
+if args.function[1] == 'trading':
+    task = build([GetTradingHistory()], local_scheduler=True)
 
-#if __name__ == __main__:
-#    main()
+if args.function[1] == 'streaming':
+    import streaming
+    instrument = args.instrument[0]
+    streaming(instruments=instrument)
 
+if args.function[1] == 'volatility':
+    instrument = args.instrument[0]
+    #granularity = args.granularity[0]
+    task = build([VolatilityReport(instrument=instrument)], local_scheduler=True)
