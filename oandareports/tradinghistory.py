@@ -44,7 +44,7 @@ class GetTradingHistory(Task):
     client = API(access_token=os.getenv('TOKEN'))
 
     output = TargetOutput(os.getenv('local_location') + 'archive/', target_class=ParquetTarget)
-    store = TargetOutput(os.getenv('local_location'), target_class=ParquetTarget)
+    store = TargetOutput(os.getenv('local_location')+ 'trading_history/', target_class=ParquetTarget)
     s3store = TargetOutput(os.getenv('S3_location') + 'tradinghistory/', target_class=ParquetTarget)
 
 
