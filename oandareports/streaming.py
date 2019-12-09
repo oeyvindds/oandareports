@@ -17,7 +17,8 @@ access_token=os.getenv('TOKEN')
 accountID=os.getenv('ACCOUNT_ID')
 
 # Parser for tickers
-parser = argparse.ArgumentParser(prog='steaming')
+parser = argparse.ArgumentParser(prog='streaming')
+parser.add_argument('function', type=str, action='store', nargs=2)
 parser.add_argument('--instruments', type=str, action='append')
 args = parser.parse_args()
 

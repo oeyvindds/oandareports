@@ -50,6 +50,8 @@ class GetHistoricRates(Task):
     requires = Requires()
 
     def fetch(self):
+        #if self.instrument.isinstance('list'):
+        #    self.instrument == self.instrument[0]
         params = {"count": 5000, "granularity": self.granularity}
         r = v20instruments.InstrumentsCandles(instrument=self.instrument, params=params)
         self.client.request(r)
