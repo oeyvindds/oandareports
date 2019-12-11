@@ -4,6 +4,7 @@ from historicrates import GetHistoricRates
 from tradinghistory import GetTradingHistory
 from reports.volatility import VolatilityReport
 from reports.exposure import ExposureReport
+from reports.financing import FinancingReport
 
 #def main():
 
@@ -16,8 +17,9 @@ my_parser = argparse.ArgumentParser(description='CLI for Oandareports')
   #                     metavar='function',
    #                    help="""The function you want to run: Alternatives are 'historic' for historic rates,""")
 #
-my_parser.add_argument('-f', action='store', nargs=1, type=str, metavar='function', help="""The function you want to run: Alternatives 
-are 'historic' for historic rates, 'trading' for trading history, 'streaming' for streaming rates, 'volatility' for volatility report, 'exposure' for exposure report""")
+my_parser.add_argument('function', action='store', nargs=1, type=str, metavar='function', help="""The function you want to run: Alternatives 
+are 'historic' for historic rates, 'trading' for trading history, 'streaming' for streaming rates, 
+'volatility' for volatility report, 'exposure' for exposure report, 'financing' for financing report""")
 
 my_parser.add_argument('-i',
                        '--instrument',
@@ -45,28 +47,33 @@ my_parser.add_argument('-s',
 # Execute the parse_args() method
 args = my_parser.parse_args()
 
-print(args)
+#print(my_parser)
 
-if args.f[0] == 'historic':
+if args.function[0] == 'historic':
     instrument = args.instrument[0]
     granularity = args.granularity[0]
     task = build([GetHistoricRates(instrument=instrument, granularity=granularity)], local_scheduler=True)
 
-if args.f[0] == 'trading':
+elif args.function[0] == 'trading':
     s3 = args.storage[0]
     task = build([GetTradingHistory(storage=s3)], local_scheduler=True)
 
-if args.f[0] == 'streaming':
+elif args.function[0] == 'streaming':
     import streaming
     instrument = args.instrument[0]
     streaming(instruments=instrument)
 
-if args.f[0] == 'volatility':
+elif args.function[0] == 'volatility':
     instrument = args.instrument[0]
     #granularity = args.granularity[0]
     task = build([VolatilityReport(instrument=instrument)], local_scheduler=True)
 
-if args.f[0] == 'exposure':
+elif args.function[0] == 'exposure':
     #instrument = args.instrument[0]
     #granularity = args.granularity[0]
     task = build([ExposureReport()], local_scheduler=True)
+
+elif args.function[0] == 'financing':
+    #instrument = args.instrument[0]
+    #granularity = args.granularity[0]
+    task = build([FinancingReport()], local_scheduler=True)
