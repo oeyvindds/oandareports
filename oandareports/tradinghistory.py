@@ -59,12 +59,12 @@ class GetTradingHistory(Task):
 
         if ParquetTarget('./'+ os.getenv('local_location') + 'trading_history/').exists():
             dsk = dd.read_parquet('./'+ os.getenv('local_location') + 'trading_history/*.parquet')
-            last_trans = 150000
+            last_trans = 160000
         else:
             trans_df = self.gettransaction(1, 1000)
             df = pd.DataFrame(trans_df['transactions'])
             dsk = dd.from_pandas(df, chunksize=10000)
-            last_trans = 150000
+            last_trans = 160000
 
         while int(dsk['id'].astype('int64').max().compute()) < last_trans:
             last_recorded = int(dsk['id'].astype('int64').max().compute())
@@ -89,7 +89,7 @@ class GetTradingHistory(Task):
             except:
                 pass
 
-        self.store().write(dsk)
+        self.store().write(dsk, write_metadata_file=True, compression='gzip')
 
         if self.storage == 's3':
             self.s3store().write(dsk)

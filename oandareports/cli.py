@@ -7,6 +7,7 @@ from reports.exposure import ExposureReport
 from reports.financing import FinancingReport
 from reports.opentrades import OpenTradesReport
 from reports.netasset import NetAssetReport
+from reports.correlation import CorrelationReport
 
 #def main():
 
@@ -89,6 +90,10 @@ elif args.function[0] == 'netassets':
     #instrument = args.instrument[0]
     #granularity = args.granularity[0]
     task = build([NetAssetReport()], local_scheduler=True)
+
+elif args.function[0] == 'correlation':
+    granularity = args.granularity[0]
+    task = build([CorrelationReport(granularity=granularity)], local_scheduler=True)
 
 else:
     print("You need to add a function. Type -h for help.")
