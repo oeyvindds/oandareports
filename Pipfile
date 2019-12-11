@@ -12,8 +12,15 @@ moto = "*"
 setuptools-scm = "*"
 pandas = {editable = true,version = "*"}
 luigi = "*"
-oandapyv20 = "*"
+oandapyV20 = "*"
 python-dotenv = "*"
+dask = {extras = ["dataframe"],version = "*"}
+fastparquet = "*"
+s3fs = "*"
+tqdm = "*"
+gevent = "*"
+seaborn = "*"
+matplotlib = "*"
 
 [requires]
 python_version = "3.7"
