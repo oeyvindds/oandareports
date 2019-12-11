@@ -38,11 +38,11 @@ class VolatilityReport(Task):
         ax = sns.jointplot(pdf['mov'], pdf['vol'], alpha=0.2)
         ax.set_axis_labels('Low to high', 'Open to close', fontsize=14)
         if granularity == 'D':
-            plt.title('Daily volatility', fontsize=14)
-            name = 'daily_volatility.png'
+            plt.title('Daily volatility {}'.format(self.instrument[0]), fontsize=14)
+            name = 'daily_volatility_{}.png'.format(self.instrument[0])
         else:
-            plt.title('Weekly volatility', fontsize=14)
-            name = 'weekly_volatility.png'
+            plt.title('Weekly volatility {}'.format(self.instrument[0]), fontsize=14)
+            name = 'weekly_volatility_{}.png'.format(self.instrument[0])
         plt.tight_layout()
         try:
             ax.savefig(os.getenv('local_location') + 'images/' + name)

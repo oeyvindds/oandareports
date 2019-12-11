@@ -6,6 +6,7 @@ from reports.volatility import VolatilityReport
 from reports.exposure import ExposureReport
 from reports.financing import FinancingReport
 from reports.opentrades import OpenTradesReport
+from reports.netasset import NetAssetReport
 
 #def main():
 
@@ -20,7 +21,7 @@ my_parser = argparse.ArgumentParser(description='CLI for Oandareports')
 #
 my_parser.add_argument('function', action='store', nargs=1, type=str, metavar='function', help="""The function you want to run: Alternatives 
 are 'historic' for historic rates, 'trading' for trading history, 'streaming' for streaming rates, 
-'volatility' for volatility report, 'exposure' for exposure report, 'financing' for financing report""")
+'volatility' for volatility report, 'exposure' for exposure report, 'financing' for financing report, 'netassets' for net assets report""")
 
 my_parser.add_argument('-i',
                        '--instrument',
@@ -83,3 +84,11 @@ elif args.function[0] == 'opentrades':
     #instrument = args.instrument[0]
     #granularity = args.granularity[0]
     task = build([OpenTradesReport()], local_scheduler=True)
+
+elif args.function[0] == 'netassets':
+    #instrument = args.instrument[0]
+    #granularity = args.granularity[0]
+    task = build([NetAssetReport()], local_scheduler=True)
+
+else:
+    print("You need to add a function. Type -h for help.")
