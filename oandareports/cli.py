@@ -5,6 +5,7 @@ from tradinghistory import GetTradingHistory
 from reports.volatility import VolatilityReport
 from reports.exposure import ExposureReport
 from reports.financing import FinancingReport
+from reports.opentrades import OpenTradesReport
 
 #def main():
 
@@ -77,3 +78,8 @@ elif args.function[0] == 'financing':
     #instrument = args.instrument[0]
     #granularity = args.granularity[0]
     task = build([FinancingReport()], local_scheduler=True)
+
+elif args.function[0] == 'opentrades':
+    #instrument = args.instrument[0]
+    #granularity = args.granularity[0]
+    task = build([OpenTradesReport()], local_scheduler=True)
