@@ -43,8 +43,8 @@ class GetTradingHistory(Task):
 
     client = API(access_token=os.getenv('TOKEN'))
 
-    output = TargetOutput(os.getenv('local_location') + 'archive/', target_class=ParquetTarget)
-    store = TargetOutput(os.getenv('local_location')+ 'trading_history/', target_class=ParquetTarget)
+    output = TargetOutput('./'+ os.getenv('local_location') + 'archive/', target_class=ParquetTarget)
+    store = TargetOutput('./'+ os.getenv('local_location')+ 'trading_history/', target_class=ParquetTarget)
     s3store = TargetOutput(os.getenv('S3_location') + 'tradinghistory/', target_class=ParquetTarget)
 
 
@@ -54,7 +54,7 @@ class GetTradingHistory(Task):
             if ParquetTarget(os.getenv('S3_location')+'tradinghistory/').exists():
                 return [DownloadS3(), archieve()]
         else:
-            if ParquetTarget(os.getenv('local_location') + 'archive/').exists():
+            if ParquetTarget('./' + os.getenv('local_location') + 'tradinghistory/').exists():
                 return archieve()
 
 
@@ -67,18 +67,18 @@ class GetTradingHistory(Task):
     def run(self):
         last_trans = int(self.gettransaction(1, 2)['lastTransactionID'])
         pbar = tqdm(last_trans)
-        if ParquetTarget(os.getenv('local_location') + 'archive/').exists():
-            input_target = next(iter(self.input()))
-            dsk = input_target.read()
-            #last_trans = 15000
+        if ParquetTarget('./'+ os.getenv('local_location') + 'trading_history/').exists():
+            dsk = dd.read_parquet('./'+ os.getenv('local_location') + 'trading_history/*.parquet')
+            #last_trans = 22000
         else:
             trans_df = self.gettransaction(1, 1000)
             df = pd.DataFrame(trans_df['transactions'])
             dsk = dd.from_pandas(df, chunksize=10000)
-            #last_trans = 15000
+            #last_trans = 22000
 
         while int(dsk['id'].astype('int64').max().compute()) < last_trans:
             last_recorded = int(dsk['id'].astype('int64').max().compute())
+            print(" - Reading history until id: {}".format(last_recorded))
             trans_df = self.gettransaction(last_recorded, last_recorded + 999)
             df = pd.DataFrame(trans_df['transactions'])
             # TODO: Improve this code
@@ -102,7 +102,7 @@ class GetTradingHistory(Task):
 
         if self.storage == 's3':
             self.s3store().write(dsk)
-            shutil.rmtree(os.getenv('local_location') + 'archive/')
+            shutil.rmtree('./'+ os.getenv('local_location') + 'archive/')
         print('Finished writing to S3')
 
 

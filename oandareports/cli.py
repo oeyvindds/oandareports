@@ -3,6 +3,7 @@ from luigi import build
 from historicrates import GetHistoricRates
 from tradinghistory import GetTradingHistory
 from reports.volatility import VolatilityReport
+from reports.exposure import ExposureReport
 
 #def main():
 
@@ -15,8 +16,8 @@ my_parser = argparse.ArgumentParser(description='CLI for Oandareports')
   #                     metavar='function',
    #                    help="""The function you want to run: Alternatives are 'historic' for historic rates,""")
 #
-my_parser.add_argument('function', action='store', nargs=2, help="""The function you want to run: Alternatives 
-are 'historic' for historic rates, 'trading' for trading history, 'streaming' for streaming rates, 'volatility' for volatility report""")
+my_parser.add_argument('-f', action='store', nargs=1, type=str, metavar='function', help="""The function you want to run: Alternatives 
+are 'historic' for historic rates, 'trading' for trading history, 'streaming' for streaming rates, 'volatility' for volatility report, 'exposure' for exposure report""")
 
 my_parser.add_argument('-i',
                        '--instrument',
@@ -36,7 +37,8 @@ my_parser.add_argument('-g',
 my_parser.add_argument('-s',
                        '--storage',
                        type=str,
-                       nargs=2,
+                       nargs=1,
+                       default='-s None',
                        metavar='storage',
                        help='Option s3 if data should be stored in AWS S3 location, in addition to local storage')
 
@@ -45,20 +47,26 @@ args = my_parser.parse_args()
 
 print(args)
 
-if args.function[1] == 'historic':
+if args.f[0] == 'historic':
     instrument = args.instrument[0]
     granularity = args.granularity[0]
     task = build([GetHistoricRates(instrument=instrument, granularity=granularity)], local_scheduler=True)
 
-if args.function[1] == 'trading':
-    task = build([GetTradingHistory()], local_scheduler=True)
+if args.f[0] == 'trading':
+    s3 = args.storage[0]
+    task = build([GetTradingHistory(storage=s3)], local_scheduler=True)
 
-if args.function[1] == 'streaming':
+if args.f[0] == 'streaming':
     import streaming
     instrument = args.instrument[0]
     streaming(instruments=instrument)
 
-if args.function[1] == 'volatility':
+if args.f[0] == 'volatility':
     instrument = args.instrument[0]
     #granularity = args.granularity[0]
     task = build([VolatilityReport(instrument=instrument)], local_scheduler=True)
+
+if args.f[0] == 'exposure':
+    #instrument = args.instrument[0]
+    #granularity = args.granularity[0]
+    task = build([ExposureReport()], local_scheduler=True)
