@@ -13,11 +13,14 @@ from oandareports.helperfiles.target import ParquetTarget
 class GetHistory(Task):
     output = TargetOutput('../'+ os.getenv('local_location'), target_class=ParquetTarget)
 
-class Reports(Task):
+class ExposureReport(Task):
 
     # Ensure requirements are in place
-    requires = Requires()
-    other = Requirement(GetHistory)
+    try:
+        requires = Requires()
+        other = Requirement(GetHistory)
+    except:
+        print('kvakk')
 
     # Set output location
     output = TargetOutput('../'+ os.getenv('local_location') + 'reports/', target_class=ParquetTarget)
