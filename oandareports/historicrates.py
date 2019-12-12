@@ -40,7 +40,7 @@ class GetHistoricRates(Task):
     instrument = Parameter()
     granularity = Parameter()
 
-    client = API(access_token=os.getenv('TOKEN'), environment='live')
+    client = API(access_token=os.getenv('TOKEN'), environment=os.getenv('OandaEnv'))
 
     def output(self):
         return ParquetTarget(os.getenv('local_location') + 'rates/' + self.instrument + '_' + self.granularity + '/')
