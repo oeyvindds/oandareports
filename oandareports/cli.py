@@ -1,14 +1,14 @@
 import argparse
 from luigi import build
-from historicrates import GetHistoricRates
-from tradinghistory import GetTradingHistory
+from tools.historicrates import GetHistoricRates
+from tools.tradinghistory import GetTradingHistory
 from reports.volatility import VolatilityReport
 from reports.exposure import ExposureReport
 from reports.financing import FinancingReport
 from reports.opentrades import OpenTradesReport
 from reports.netasset import NetAssetReport
 from reports.correlation import CorrelationReport
-from streaming import Streaming
+
 
 #def main():
 
@@ -69,7 +69,7 @@ elif args.function[0] == 'trading':
     task = build([GetTradingHistory(storage=s3)], local_scheduler=True)
 
 elif args.function[0] == 'stream':
-    print('kvakk')
+
     #try:
     instrument = args.instrument[0]
     #except TypeError:
@@ -77,8 +77,8 @@ elif args.function[0] == 'stream':
         #exit()
     #import streaming
     #instrument = args.instrument[0]
-    print('kvakk')
-    Streaming(instruments=instrument)
+    import examples.streaming
+    streaming.Streaming(instruments=instrument)
 
 elif args.function[0] == 'volatility':
     try:
