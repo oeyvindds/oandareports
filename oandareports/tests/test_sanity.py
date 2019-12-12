@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 
 """A number of tests to check that nothing is totally off.
-Seems to be uses as "best-practice" on a number of templates"""
+Seems to be uses as "best-practice" on a number of cookiecutter-templates"""
 
 
 def test_true():
