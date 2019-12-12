@@ -7,9 +7,12 @@ import oandapyV20.endpoints.instruments as v20instruments
 from oandapyV20 import API
 import pandas as pd
 import dask.dataframe as dd
+from dotenv import load_dotenv
+load_dotenv()
+#from oandareports import helperfiles
 
-from oandareports.helperfiles.task import TargetOutput, Requires, Requirement
-from oandareports.helperfiles.target import ParquetTarget
+from helperfiles.task import TargetOutput, Requires, Requirement
+from helperfiles.target import ParquetTarget
 
 # Todo: Add comments
 

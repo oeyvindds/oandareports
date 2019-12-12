@@ -3,7 +3,7 @@ import matplotlib.pylab as plt
 import dask.dataframe as dd
 import numpy as np
 from luigi import Task, build
-from oandareports.helperfiles.task import TargetOutput
+from helperfiles.task import TargetOutput
 from pandas.plotting import register_matplotlib_converters
 from historicrates import GetHistoricRates
 import datetime as datetime

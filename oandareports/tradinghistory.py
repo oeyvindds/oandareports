@@ -7,8 +7,8 @@ import pandas as pd
 import dask.dataframe as dd
 from oandapyV20 import API
 import oandapyV20.endpoints.transactions as transactions
-from oandareports.helperfiles.task import TargetOutput, Requires, Requirement
-from oandareports.helperfiles.target import ParquetTarget
+from helperfiles.task import TargetOutput, Requires, Requirement
+from helperfiles.target import ParquetTarget
 from contextlib import suppress
 from shutil import rmtree
 

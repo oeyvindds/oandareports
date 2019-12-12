@@ -4,11 +4,11 @@ import pandas as pd
 import dask.dataframe as dd
 from luigi import Task, build
 from luigi.parameter import Parameter
-from oandareports.helperfiles.task import TargetOutput, Requires, Requirement
+from helperfiles.task import TargetOutput, Requires, Requirement
 from historicrates import GetHistoricRates
 import seaborn as sns
 import matplotlib.pyplot as plt
-from oandareports.helperfiles.target import ParquetTarget
+from helperfiles.target import ParquetTarget
 import datetime as datetime
 
 
