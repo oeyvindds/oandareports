@@ -39,7 +39,7 @@ class OpenTradesReport(Task):
             ddf_rate["close"] = ddf_rate["c"].astype("float64")
             ddf_rate = ddf_rate.compute()
             fig, ax = plt.subplots()
-            ax.scatter(temp_df["time"], temp_df["price"], c=temp_df["transaction"])
+            scatter = ax.scatter(temp_df["time"], temp_df["price"], c=temp_df["transaction"])
             ax.plot(ddf_rate["time"], ddf_rate["close"], alpha=0.4)
             plt.xlim(
                 temp_df["time"].max() - datetime.timedelta(days=30),
@@ -48,6 +48,7 @@ class OpenTradesReport(Task):
             plt.xticks(rotation=45)
             plt.ylabel("USD")
             plt.title("Transactions for {}".format(i))
+            plt.legend(handles=scatter.legend_elements()[0],labels=['Sell','Buy'])
             fig.savefig(
                 os.getenv("local_location") + "images/" + "order_flow_{}.png".format(i)
             )
@@ -60,3 +61,5 @@ class OpenTradesReport(Task):
         dsk["units"] = dsk["units"].astype("int64")
         dsk["price"] = dsk["price"].astype("float64")
         self.order_flow(dsk)
+
+
