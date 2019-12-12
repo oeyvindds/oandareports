@@ -10,7 +10,7 @@ from luigi.parameter import Parameter
 from luigi import Task, ExternalTask
 from helperfiles.task import TargetOutput, Requires, Requirement
 from helperfiles.target import ParquetTarget
-from historicrates import GetHistoricRates
+from tools.historicrates import GetHistoricRates
 
 class VolatilityReport(Task):
     help = "Will create volatility-report for specified instrument"
