@@ -9,7 +9,7 @@ from luigi.parameter import Parameter
 from luigi import Task, ExternalTask
 from helperfiles.task import TargetOutput, Requires, Requirement
 from helperfiles.target import ParquetTarget
-from tradinghistory import GetTradingHistory
+from tools.tradinghistory import GetTradingHistory
 
 #class GetHistory(Task):
  #   output = TargetOutput('../'+ os.getenv('local_location'), target_class=ParquetTarget)

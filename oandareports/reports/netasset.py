@@ -7,7 +7,7 @@ import datetime as datetime
 from pylab import *
 from contextlib import suppress
 from helperfiles.task import TargetOutput, Requires, Requirement
-from tradinghistory import GetTradingHistory
+from tools.tradinghistory import GetTradingHistory
 
 class NetAssetReport(Task):
 

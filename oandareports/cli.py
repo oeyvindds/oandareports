@@ -1,13 +1,16 @@
 import argparse
 from luigi import build
-from historicrates import GetHistoricRates
-from tradinghistory import GetTradingHistory
+from tools.historicrates import GetHistoricRates
+from tools.tradinghistory import GetTradingHistory
+from tools.create_pdf import PdfReport
 from reports.volatility import VolatilityReport
 from reports.exposure import ExposureReport
 from reports.financing import FinancingReport
 from reports.opentrades import OpenTradesReport
 from reports.netasset import NetAssetReport
 from reports.correlation import CorrelationReport
+
+
 
 #def main():
 
@@ -21,7 +24,7 @@ my_parser = argparse.ArgumentParser(description='CLI for Oandareports')
    #                    help="""The function you want to run: Alternatives are 'historic' for historic rates,""")
 #
 my_parser.add_argument('function', action='store', nargs=1, type=str, metavar='function', help="""The function you want to run: Alternatives 
-are 'historic' for historic rates, 'trading' for trading history, 'streaming' for streaming rates, 
+are 'report' for creating a report, 'historic' for historic rates, 'trading' for trading history, 'stream' for streaming rates, 
 'volatility' for volatility report, 'exposure' for exposure report, 'financing' for financing report, 'netassets' for net assets report""")
 
 my_parser.add_argument('-i',
@@ -29,7 +32,7 @@ my_parser.add_argument('-i',
                        type=str,
                        metavar='instrument',
                        nargs=1,
-                       action='append',
+                       action='store',
                        help='Instrument; for example EUR_USD or BCO_USD')
 
 my_parser.add_argument('-g',
@@ -67,15 +70,17 @@ elif args.function[0] == 'trading':
     s3 = args.storage[0]
     task = build([GetTradingHistory(storage=s3)], local_scheduler=True)
 
-elif args.function[0] == 'streaming':
-    try:
-        instrument = args.instrument[0]
-    except TypeError:
-        print("Add an instrument with flag -i for this to work. -h for help")
-        exit()
-    import streaming
+elif args.function[0] == 'stream':
+
+    #try:
+    instrument = args.instrument[0]
+    #except TypeError:
+        #print("Add an instrument with flag -i for this to work. -h for help")
+        #exit()
+    #import streaming
     #instrument = args.instrument[0]
-    streaming(instruments=instrument)
+    import examples.streaming
+    streaming.Streaming(instruments=instrument)
 
 elif args.function[0] == 'volatility':
     try:
@@ -104,6 +109,11 @@ elif args.function[0] == 'netassets':
     #instrument = args.instrument[0]
     #granularity = args.granularity[0]
     task = build([NetAssetReport()], local_scheduler=True)
+
+elif args.function[0] == 'report':
+    #instrument = args.instrument[0]
+    #granularity = args.granularity[0]
+    task = build([PdfReport()], local_scheduler=True)
 
 elif args.function[0] == 'correlation':
     try:

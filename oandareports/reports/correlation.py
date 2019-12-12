@@ -5,7 +5,7 @@ import dask.dataframe as dd
 from luigi import Task, build
 from luigi.parameter import Parameter
 #from helperfiles.task import TargetOutput, Requires, Requirement
-from historicrates import GetHistoricRates
+from tools.historicrates import GetHistoricRates
 import seaborn as sns
 import matplotlib.pyplot as plt
 #from helperfiles.target import ParquetTarget
