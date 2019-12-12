@@ -18,8 +18,8 @@ class VolatilityReport(Task):
     instrument = Parameter()
 
     def requires(self):
-        task = build([GetHistoricRates(instrument=self.instrument[0], granularity='D')], local_scheduler=True)
-        task = build([GetHistoricRates(instrument=self.instrument[0], granularity='W')], local_scheduler=True)
+        task = build([GetHistoricRates(instrument=self.instrument, granularity='D')], local_scheduler=True)
+        task = build([GetHistoricRates(instrument=self.instrument, granularity='W')], local_scheduler=True)
 
 
     def add_arguments(self, parser):
@@ -27,7 +27,7 @@ class VolatilityReport(Task):
         parser.add_argument('--instrument', nargs='2', type=str)
 
     def analyze(self, granularity):
-        ddf = dd.read_parquet(os.getenv('local_location') + 'rates/' + self.instrument[0] + '_' + granularity + '/' + 'part.*.parquet')
+        ddf = dd.read_parquet(os.getenv('local_location') + 'rates/' + self.instrument + '_' + granularity + '/' + 'part.*.parquet')
         ddf = ddf.astype({'complete':'bool', 'volume':'int64', 'o':'float64', 'h':'float64', 'l':'float64', 'c':'float64' })
         ddf = ddf[ddf['complete'] == True]
         ddf['time'] = dd.to_datetime(ddf['time'])
@@ -38,11 +38,11 @@ class VolatilityReport(Task):
         ax = sns.jointplot(pdf['mov'], pdf['vol'], alpha=0.2)
         ax.set_axis_labels('Low to high', 'Open to close', fontsize=14)
         if granularity == 'D':
-            plt.title('Daily volatility {}'.format(self.instrument[0]), fontsize=14)
-            name = 'daily_volatility_{}.png'.format(self.instrument[0])
+            plt.title('Daily volatility {}'.format(self.instrument), fontsize=14)
+            name = 'daily_volatility_{}.png'.format(self.instrument)
         else:
-            plt.title('Weekly volatility {}'.format(self.instrument[0]), fontsize=14)
-            name = 'weekly_volatility_{}.png'.format(self.instrument[0])
+            plt.title('Weekly volatility {}'.format(self.instrument), fontsize=14)
+            name = 'weekly_volatility_{}.png'.format(self.instrument)
         plt.tight_layout()
         try:
             ax.savefig(os.getenv('local_location') + 'images/' + name)

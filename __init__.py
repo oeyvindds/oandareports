@@ -1,6 +1,10 @@
 from setuptools_scm import get_version
 #import oandareports
-#from oandareports import examples, helperfiles, reports, tests
+#from oandareports import examples
+#from oandareports import helperfiles
+#from oandareports import tests
+#from oandareports import tools
+#from oandareports import reports
 
 from dotenv import load_dotenv
 
