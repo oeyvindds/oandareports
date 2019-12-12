@@ -6,7 +6,7 @@ from luigi.format import Nop
 import datetime as datetime
 from pylab import *
 from contextlib import suppress
-from oandareports.helperfiles.task import TargetOutput, Requires, Requirement
+from helperfiles.task import TargetOutput, Requires, Requirement
 from tradinghistory import GetTradingHistory
 
 class NetAssetReport(Task):
@@ -50,5 +50,7 @@ class NetAssetReport(Task):
         plt.ylim(0,(max(max_position)+max(max_position)*0.1))
         plt.xlim(df["time"].max() - datetime.timedelta(days=30), df["time"].max())
         #image = plt.savefig(os.getenv("local_location") + "images/" + "netassets.png")
+        if not os.path.exists(os.path.dirname(self.output().path)):
+            os.makedirs(os.path.dirname(self.output().path))
         with open(self.output().path, 'wb') as out_file:
             plt.savefig(out_file)
