@@ -53,8 +53,14 @@ args = my_parser.parse_args()
 #print(my_parser)
 
 if args.function[0] == 'historic':
-    instrument = args.instrument[0]
-    granularity = args.granularity[0]
+    try:
+        instrument = args.instrument[0]
+        granularity = args.granularity[0]
+    except TypeError:
+        print("Add an instrument with flag -i and granularity with -g for this to work. -h for help")
+        exit()
+    #instrument = args.instrument[0]
+    #granularity = args.granularity[0]
     task = build([GetHistoricRates(instrument=instrument, granularity=granularity)], local_scheduler=True)
 
 elif args.function[0] == 'trading':
@@ -62,13 +68,21 @@ elif args.function[0] == 'trading':
     task = build([GetTradingHistory(storage=s3)], local_scheduler=True)
 
 elif args.function[0] == 'streaming':
+    try:
+        instrument = args.instrument[0]
+    except TypeError:
+        print("Add an instrument with flag -i for this to work. -h for help")
+        exit()
     import streaming
-    instrument = args.instrument[0]
+    #instrument = args.instrument[0]
     streaming(instruments=instrument)
 
 elif args.function[0] == 'volatility':
-    instrument = args.instrument[0]
-    #granularity = args.granularity[0]
+    try:
+        instrument = args.instrument[0]
+    except TypeError:
+        print("Add an instrument with flag -i for this to work. -h for help")
+        exit()
     task = build([VolatilityReport(instrument=instrument)], local_scheduler=True)
 
 elif args.function[0] == 'exposure':
@@ -92,7 +106,11 @@ elif args.function[0] == 'netassets':
     task = build([NetAssetReport()], local_scheduler=True)
 
 elif args.function[0] == 'correlation':
-    granularity = args.granularity[0]
+    try:
+        granularity = args.granularity[0]
+    except TypeError:
+        print("Add granularity with flag -g for this to work. -h for help")
+        exit()
     task = build([CorrelationReport(granularity=granularity)], local_scheduler=True)
 
 else:

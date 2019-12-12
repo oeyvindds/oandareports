@@ -7,7 +7,7 @@ import dask.dataframe as dd
 from luigi import Task, build
 from luigi.parameter import Parameter
 from luigi import Task, ExternalTask
-from oandareports.helperfiles.task import TargetOutput, Requires, Requirement
+from helperfiles.task import TargetOutput, Requires, Requirement
 from pandas.plotting import register_matplotlib_converters
 
 register_matplotlib_converters()
