@@ -48,7 +48,7 @@ class BaseDaskTarget(Target):
         self.glob = glob
         self.path = path
         self.storage_options = storage_options or {}
-        self.flag = None
+        self.flag = flag
 
         if not path.endswith(self._get_sep()):
             raise ValueError("Must be a directory!")
