@@ -21,6 +21,7 @@ tqdm = "*"
 gevent = "*"
 seaborn = "*"
 matplotlib = "*"
+fpdf = "*"
 
 [requires]
 python_version = "3.7"
