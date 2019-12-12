@@ -45,6 +45,6 @@ class FinancingReport(Task):
         dsk['accountBalance'] = dsk['accountBalance'].astype('float64')
         df = dsk.compute()
         df['financing'] = df['financing'].cumsum(axis=0)
-        print(df.head())
+        #print(df.head())
         self.create_graph(df)
-        df.to_csv('temp.csv')
+        #df.to_csv('temp.csv')
