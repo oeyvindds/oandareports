@@ -30,7 +30,7 @@ Your .env file needs the following keys:
 - TOKEN= Token from Oanda
 - ACCOUNT_ID= Account id from Oanda
 - local_location = Directory for local storage of files. Example: data/
-- OandaEnv = Oanda environment. Will be either practice or live
+- OandaEnv = Oanda environment: Will be either practice or live
 
 USAGE
 -----
