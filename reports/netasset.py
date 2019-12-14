@@ -3,15 +3,15 @@ import matplotlib.pylab as plt
 import dask.dataframe as dd
 from luigi import Task, LocalTarget
 from luigi.format import Nop
-import datetime as datetime
 from pylab import *
 from contextlib import suppress
-from helperfiles.task import TargetOutput, Requires, Requirement
+from helperfiles.task import Requires, Requirement
 from tools.tradinghistory import GetTradingHistory
 
 
 class NetAssetReport(Task):
-    def return_env(value):
+    def return_env(self, value):
+        # Fix required for Travis CI
         value = os.getenv(value)
         if value == None:
             value = 'not_availiable'
@@ -21,7 +21,6 @@ class NetAssetReport(Task):
     other = Requirement(GetTradingHistory)
 
     def output(self):
-        # Remove old image, and replace it with a new one
         with suppress(FileNotFoundError):
             os.remove(self.return_env("local_location") + "images/" + "netassets.png")
         return LocalTarget(self.return_env("local_location") + "images/" + "netassets.png", format=Nop)

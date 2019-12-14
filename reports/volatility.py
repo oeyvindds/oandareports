@@ -1,21 +1,18 @@
 import os
 import seaborn as sns
 import matplotlib.pylab as plt
-from matplotlib.dates import DateFormatter
-import matplotlib.dates as mdates
+
 import dask.dataframe as dd
-from luigi import Task
 from luigi import build
 from luigi.parameter import Parameter
-from luigi import Task, ExternalTask
-from helperfiles.task import TargetOutput, Requires, Requirement
-from helperfiles.target import ParquetTarget
+from luigi import Task
 from tools.historicrates import GetHistoricRates
 
 class VolatilityReport(Task):
     help = "To create volatility-report for specified instrument"
 
     def return_env(value):
+        # Fix required for Travis CI
         value = os.getenv(value)
         if value == None:
             value = 'not_availiable'
@@ -46,13 +43,6 @@ class VolatilityReport(Task):
     def analyze(self, granularity):
         ddf = dd.read_parquet(self.return_env('local_location') + 'rates/' + str(self.instrument) + '_' + granularity + '/' + 'part.*.parquet')
         pdf = self.calculate(ddf)
-        # ddf = ddf.astype({'complete':'bool', 'volume':'int64', 'o':'float64', 'h':'float64', 'l':'float64', 'c':'float64' })
-        # ddf = ddf[ddf['complete'] == True]
-        # ddf['time'] = dd.to_datetime(ddf['time'])
-        # ddf = ddf.set_index('time')
-        # ddf['vol'] = ddf['h'] - ddf['l']
-        # ddf['mov'] = ddf['c'] - ddf['o']
-        # pdf = ddf.compute()
         ax = sns.jointplot(pdf['mov'], pdf['vol'], alpha=0.2)
         ax.set_axis_labels('Low to high', 'Open to close', fontsize=14)
         if granularity == 'D':

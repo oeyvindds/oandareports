@@ -7,4 +7,3 @@
 # installed with csci_utils
 # Except for test_sanity, the rest are removed if csci_utils
 # are not installed. This is done by post_gen_project.py
-#from oandareports.reports import correlation, exposure, financing, netasset, opentrades, volatility

@@ -3,18 +3,18 @@ import matplotlib.pylab as plt
 import dask.dataframe as dd
 import numpy as np
 from luigi import Task, build
-from helperfiles.task import TargetOutput
 from pandas.plotting import register_matplotlib_converters
 from tools.historicrates import GetHistoricRates
 import datetime as datetime
-from helperfiles.task import TargetOutput, Requires, Requirement
+from helperfiles.task import Requires, Requirement
 from tools.tradinghistory import GetTradingHistory
 
 register_matplotlib_converters()
 
 
 class OpenTradesReport(Task):
-    def return_env(value):
+    def return_env(self, value):
+        # Fix required for Travis CI
         value = os.getenv(value)
         if value == None:
             value = 'not_availiable'
@@ -72,15 +72,8 @@ class OpenTradesReport(Task):
 
 
     def run(self):
-        #requires = Requires()
-        #other = Requirement(GetTradingHistory)
         dsk = dd.read_parquet(self.return_env("local_location") + "trading_history/*.parquet")
         dsk = self.calculate(dsk)
-        # dsk["time"] = dsk["time"].astype("M8[D]")
-        # dsk = dsk[dsk["type"].isin(["ORDER_FILL"])]
-        # dsk = dsk[["time", "instrument", "units", "price"]]
-        # dsk["units"] = dsk["units"].astype("int64")
-        # dsk["price"] = dsk["price"].astype("float64")
         self.order_flow(dsk)
 
 

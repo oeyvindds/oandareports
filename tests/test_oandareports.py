@@ -1,31 +1,17 @@
-#import os
-
-#from unittest import TestCase
-#from unittest.mock import patch, MagicMock
-#from luigi import build, ExternalTask, format, Parameter, Task
-from luigi.parameter import MissingParameterException, UnknownParameterException
-#from luigi.contrib.s3 import S3Target
-#from luigi import LocalTarget
-#from luigi.execution_summary import LuigiStatusCode
-#from luigi.mock import MockTarget
 from unittest import TestCase
-# import pset_5
-# from pset_5.tasks import CleanedReviews, ByDecade, ByStars, CSVTarget, YelpReviews
-#from csci_utils.luigi.dask.target import ParquetTarget
-#import re
-#from datetime import datetime
 import dask.dataframe as dd
-#from luigi import build
 import pandas as pd
-#from tempfile import TemporaryDirectory
-#import os
-#import numpy as np
-
-#import argparse
-from luigi import build
+from unittest.mock import patch, MagicMock
+from luigi.mock import MockTarget
+from luigi import build, ExternalTask, format, Parameter, Task
+from luigi.parameter import MissingParameterException, UnknownParameterException
+from luigi.contrib.s3 import S3Target
+from luigi import LocalTarget
+from luigi.execution_summary import LuigiStatusCode
+from unittest import TestCase
 from tools.historicrates import GetHistoricRates
 from tools.tradinghistory import GetTradingHistory
-#from tools.create_pdf import PdfReport
+from tools.create_pdf import PdfReport
 from reports.volatility import VolatilityReport
 from reports.exposure import ExposureReport
 from reports.financing import FinancingReport
@@ -64,7 +50,7 @@ class TasksDataTests(TestCase):
             build_func(GetTradingHistory, instrument='EUR_USD')
 
         #with patch('luigi.LocalTarget.exists', MagicMock(return_value=True)):
-         #   self.assertEqual(build_func(GetTradingHistory), LuigiStatusCode.SUCCESS)
+            #self.assertEqual(build_func(GetTradingHistory), LuigiStatusCode.SUCCESS)
 
     def test_VolatilityReport(self):
         """Ensure GetTradingHistory works correctly and as expected"""
@@ -1100,8 +1086,6 @@ class TestLuigiTasks(TestCase):
         self.rates_dd = dd.from_pandas(
             self.rates, npartitions=self.npartitions
         )
-
-        #self.tmpdir = ""
 
     def test_netassets(self):
         a = NetAssetReport.calculate(self, self.trading_history_dd)

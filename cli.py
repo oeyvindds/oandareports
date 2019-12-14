@@ -10,20 +10,9 @@ from reports.opentrades import OpenTradesReport
 from reports.netasset import NetAssetReport
 from reports.correlation import CorrelationReport
 
-
-
-
-#def main():
-
 # Create the parser
 my_parser = argparse.ArgumentParser(description='CLI for Oandareports')
 
-# Add the arguments
-#my_parser.add_argument('function',
- #                      type=str,
-  #                     metavar='function',
-   #                    help="""The function you want to run: Alternatives are 'historic' for historic rates,""")
-#
 my_parser.add_argument('function', action='store', nargs=1, type=str, metavar='function', help="""The function you want to run: Alternatives 
 are 'report' for creating a report, 'historic' for historic rates, 'trading' for trading history, 'stream' for streaming rates, 
 'volatility' for volatility report, 'exposure' for exposure report, 'financing' for financing report, 'netassets' for net assets report,
@@ -55,7 +44,6 @@ my_parser.add_argument('-s',
 # Execute the parse_args() method
 args = my_parser.parse_args()
 
-#print(my_parser)
 
 if args.function[0] == 'historic':
     try:
@@ -64,8 +52,6 @@ if args.function[0] == 'historic':
     except TypeError:
         print("Add an instrument with flag -i and granularity with -g for this to work. -h for help")
         exit()
-    #instrument = args.instrument[0]
-    #granularity = args.granularity[0]
     task = build([GetHistoricRates(instrument=instrument, granularity=granularity)], local_scheduler=True)
 
 elif args.function[0] == 'trading':
@@ -79,8 +65,6 @@ elif args.function[0] == 'stream':
     except TypeError:
         print("Add an instrument with flag -i for this to work. -h for help")
         exit()
-    #import streaming
-    #instrument = args.instrument[0]
     import examples.streaming
     streaming.Streaming(instruments=instrument)
 
@@ -93,28 +77,18 @@ elif args.function[0] == 'volatility':
     task = build([VolatilityReport(instrument=instrument)], local_scheduler=True)
 
 elif args.function[0] == 'exposure':
-    #instrument = args.instrument[0]
-    #granularity = args.granularity[0]
     task = build([ExposureReport()], local_scheduler=True)
 
 elif args.function[0] == 'financing':
-    #instrument = args.instrument[0]
-    #granularity = args.granularity[0]
     task = build([FinancingReport()], local_scheduler=True)
 
 elif args.function[0] == 'opentrades':
-    #instrument = args.instrument[0]
-    #granularity = args.granularity[0]
     task = build([OpenTradesReport()], local_scheduler=True)
 
 elif args.function[0] == 'netassets':
-    #instrument = args.instrument[0]
-    #granularity = args.granularity[0]
     task = build([NetAssetReport()], local_scheduler=True)
 
 elif args.function[0] == 'report':
-    #instrument = args.instrument[0]
-    #granularity = args.granularity[0]
     task = build([PdfReport()], local_scheduler=True)
 
 elif args.function[0] == 'correlation':

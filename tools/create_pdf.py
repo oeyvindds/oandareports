@@ -7,7 +7,8 @@ from datetime import date
 class PdfReport(Task):
     help = "Will create a pdf-document of the images created earlier"
 
-    def return_env(value):
+    def return_env(self, value):
+        # Fix required for Travis CI
         value = os.getenv(value)
         if value == None:
             value = 'not_availiable'
