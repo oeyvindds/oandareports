@@ -1,8 +1,3 @@
-
-# Todo: Add comments
-# Todo: Add parameter to delete local copy
-# Todo: Automatic deletion of S3 after download
-
 import os
 from luigi.parameter import Parameter
 from luigi import Task, ExternalTask
@@ -18,6 +13,7 @@ from helperfiles.task import TargetOutput, Requires, Requirement
 from helperfiles.target import ParquetTarget
 
 class env_workaround():
+    # Fix required for Travis CI
     def return_env(self, value):
         value_tmp = os.getenv(value)
         if value_tmp == None:
@@ -52,10 +48,10 @@ class GetHistoricRates(Task):
     client = API(access_token=env_workaround().return_env('TOKEN'), environment='practice')
 
     def output(self):
-        return ParquetTarget(env_workaround().return_env(self, 'local_location') + 'rates/' + self.instrument + '_' + self.granularity + '/')
+        return ParquetTarget(env_workaround().return_env('local_location') + 'rates/' + self.instrument + '_' + self.granularity + '/')
 
     def s3output(self):
-        return ParquetTarget(env_workaround().return_env(self, 'S3_location') + 'rates/' + self.instrument + '_' + self.granularity + '/')
+        return ParquetTarget(env_workaround().return_env('S3_location') + 'rates/' + self.instrument + '_' + self.granularity + '/')
 
     s3store = TargetOutput(env_workaround().return_env('S3_location') + 'historicdata/', target_class=ParquetTarget)
 
@@ -71,7 +67,7 @@ class GetHistoricRates(Task):
 
     def run(self):
         dsk = None
-        if ParquetTarget(env_workaround().return_env(self, 'local_location') + 'rates/' + self.instrument +'/').exists():
+        if ParquetTarget(env_workaround().return_env('local_location') + 'rates/' + self.instrument +'/').exists():
             input_target = next(iter(self.input()))
             dsk = input_target.read()
 
