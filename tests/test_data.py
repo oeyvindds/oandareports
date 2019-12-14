@@ -2,8 +2,10 @@ from unittest import TestCase
 from luigi import ExternalTask, Task
 from luigi.worker import Worker
 
+
 class Dependency(TestCase):
-    '''Tests requirements of tasks'''
+    """Tests requirements of tasks"""
+
     def run(self, result=None):
         with Worker() as w:
             self.w = w
@@ -37,9 +39,11 @@ class Dependency(TestCase):
         self.assertFalse(a.has_run)
         self.assertFalse(b.has_run)
 
+
 class Dependency2(TestCase):
-    '''Tests that DownloadModel does require SavedModel
-    as intended. Does also test that they both run as expected'''
+    """Tests that DownloadModel does require SavedModel
+    as intended. Does also test that they both run as expected"""
+
     def run(self, result=None):
         with Worker() as w:
             self.w = w

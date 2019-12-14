@@ -11,10 +11,23 @@ from helperfiles.task import TargetOutput, Requirement, Requires
 from helperfiles.target import ParquetTarget
 from contextlib import suppress
 
-# pipenv run luigi --module tradinghistory GetTradingHistory --local-scheduler
+
+"""
+Functionality to download trading history
+May be run like this: luigi --module tradinghistory GetTradingHistory --local-scheduler
+or thru cli.py
+
+Will download history from the account specified in .env
+"""
 
 
 class MoveToArchieve(Task):
+    """This moves existing trading history into an archive folder.
+
+    This is done so exisitng history, if existing may be read in and used.
+    Hence, for transactions that are existing locally does not get read again.
+    Then everything is written into the trading_history folder to ensure
+    true atomic write"""
 
     local_location = os.getenv("local_location")
     if local_location == None:
@@ -44,6 +57,7 @@ class env_workaround:
 
 
 class S3(ExternalTask):
+    # If -storage s3 is selected; everything gets stored at AWS S3 as backup
 
     output = TargetOutput(
         env_workaround().return_env("S3_location") + "tradinghistory/",
@@ -52,6 +66,7 @@ class S3(ExternalTask):
 
 
 class DownloadS3(ExternalTask):
+    # Downloading from s3 if history exist there
     requires = Requires()
     other = Requirement(S3)
 
@@ -68,6 +83,15 @@ class DownloadS3(ExternalTask):
 
 
 class GetTradingHistory(Task):
+    """
+    The task that does the heavy lifting.
+    Ensures to reuse existing history and append new.
+
+    :param storage: s3 if you want backup to AWS s3
+    :param max_transactions: The id of the latest event you want downloaded
+                The account / token we have provided you with, contains about
+                385 000 events. So a clean download will take some time, unless
+                    this is set"""
 
     storage = Parameter(default="")
     max_transactions = Parameter(default=0)
@@ -116,6 +140,8 @@ class GetTradingHistory(Task):
         return trans
 
     def run(self):
+        # last_trans is the latest transaction on the server
+        # May be overridden with max_transactions above
         last_trans = int(self.gettransaction(1, 2)["lastTransactionID"])
         pbar = tqdm(last_trans)
 
@@ -130,6 +156,7 @@ class GetTradingHistory(Task):
             if self.max_transactions != 0:
                 last_trans = self.max_transactions
         else:
+            # If no local copy exist
             trans_df = self.gettransaction(1, 1000)
             df = pd.DataFrame(trans_df["transactions"])
             dsk = dd.from_pandas(df, chunksize=10000)
@@ -141,50 +168,36 @@ class GetTradingHistory(Task):
             print(" - Reading history until id: {}".format(last_recorded))
             trans_df = self.gettransaction(last_recorded, last_recorded + 999)
             df = pd.DataFrame(trans_df["transactions"])
-            # for i in [
-            #     "takeProfitOnFill",
-            #     "fullPrice",
-            #     "tradeOpened",
-            #     "positionFinancings",
-            #     "tradeReduced",
-            #     "tradesClosed",
-            #     "openTradeDividendAdjustments",
-            # ]:
-            #     try:
-            #         df = df.drop(columns=i)
-            #     except:
-            #         pass
-
-            df = df.drop(columns=["takeProfitOnFill","fullPrice","tradeOpened","positionFinancings","tradeReduced","tradesClosed","openTradeDividendAdjustments"],errors='ignore')
+            df = df.drop(
+                columns=[
+                    "takeProfitOnFill",
+                    "fullPrice",
+                    "tradeOpened",
+                    "positionFinancings",
+                    "tradeReduced",
+                    "tradesClosed",
+                    "openTradeDividendAdjustments",
+                ],
+                errors="ignore",
+            )
             dsk = dd.concat([dsk, df])
 
+            # The API only allows for 1000 events per request. Hence a progress bar
             pbar.update(1000)
 
-        # for i in [
-        #     "takeProfitOnFill",
-        #     "fullPrice",
-        #     "tradeOpened",
-        #     "positionFinancings",
-        #     "tradeReduced",
-        #     "tradesClosed",
-        #     "openTradeDividendAdjustments",
-        #     "shortPositionCloseout",
-        # ]:
-        #     try:
-        #         dsk = dsk.drop(i, axis=1)
-        #     except:
-        #         pass
-
-        dsk = dsk.drop(columns=[
-            "takeProfitOnFill",
-            "fullPrice",
-            "tradeOpened",
-            "positionFinancings",
-            "tradeReduced",
-            "tradesClosed",
-            "openTradeDividendAdjustments",
-            "shortPositionCloseout",
-        ], errors='ignore')
+        dsk = dsk.drop(
+            columns=[
+                "takeProfitOnFill",
+                "fullPrice",
+                "tradeOpened",
+                "positionFinancings",
+                "tradeReduced",
+                "tradesClosed",
+                "openTradeDividendAdjustments",
+                "shortPositionCloseout",
+            ],
+            errors="ignore",
+        )
 
         self.store().write(dsk, write_metadata_file=True, compression="gzip")
 

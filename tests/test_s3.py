@@ -19,9 +19,7 @@ def create_bucket():
 
 class TestS3Target(TestCase):
     """This class tests a number of S3-operations
-    More specific testing of this homework's utilization
-    of s3 is tested in the other files, such as
-    test_luigi.py and test_data.py"""
+    that we need for this project"""
 
     s3_client = S3Client(AWS_ACCESS_KEY, AWS_SECRET_KEY)
     tempFileContents = b"Content for testing S3."
