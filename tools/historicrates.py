@@ -19,13 +19,13 @@ from helperfiles.target import ParquetTarget
 
 class env_workaround():
     def return_env(self, value):
-        value = os.getenv(value)
-        if value == None:
+        value_tmp = os.getenv(value)
+        if value_tmp == None:
             if value == 'OandaEnv':
-                value == 'practice'
+                value_tmp == 'practice'
             else:
-                value = 'not_availiable'
-        return value
+                value_tmp = 'not_availiable'
+        return value_tmp
 
 class S3(ExternalTask):
     output = TargetOutput(env_workaround().return_env('S3_location')+'historicdata/', target_class=ParquetTarget)
