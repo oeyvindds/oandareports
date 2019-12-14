@@ -13,9 +13,6 @@ register_matplotlib_converters()
 
 class OpenTradesReport(Task):
 
-    # Set output location
-    # output = TargetOutput(os.getenv('local_location') + '/image')
-
     def order_flow(self, dsk):
         df = dsk.compute()
         for i in df["instrument"].unique():

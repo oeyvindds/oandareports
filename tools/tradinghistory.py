@@ -7,8 +7,10 @@ import pandas as pd
 import dask.dataframe as dd
 from oandapyV20 import API
 import oandapyV20.endpoints.transactions as transactions
-from helperfiles.task import TargetOutput, Requires, Requirement
+from helperfiles.task import TargetOutput, Requirement, Requires
 from helperfiles.target import ParquetTarget
+#from helperfiles.task import TargetOutput, Requires, Requirement
+#from helperfiles.target import ParquetTarget
 from contextlib import suppress
 from shutil import rmtree
 
@@ -69,9 +71,6 @@ class GetTradingHistory(Task):
     if ParquetTarget(os.getenv('local_location') + 'archive/').exists():
         with suppress(FileNotFoundError):
             shutil.rmtree(os.getenv('local_location') + 'archive/', ignore_errors=True)
-
-    #requires = Requires()
-    #other = Requirement(MoveToArchieve)
 
     def requires(self):
         if self.storage == 's3':

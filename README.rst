@@ -4,7 +4,7 @@ OandaReports.  Open source tool for reporting Oanda trading
 :Info: The standardized README file for OandaReports.
 :Author: Oyvind Sporck & Diana Liu
 
-:Version: 0.1.0
+:Version: 0.12.1
 
 .. index: README
 .. image:: https://travis-ci.com/oeyvindds/oandareports.svg?branch=master
