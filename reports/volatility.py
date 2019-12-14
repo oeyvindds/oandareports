@@ -15,6 +15,12 @@ from tools.historicrates import GetHistoricRates
 class VolatilityReport(Task):
     help = "To create volatility-report for specified instrument"
 
+    def return_env(value):
+        value = os.getenv(value)
+        if value == None:
+            value = 'not_availiable'
+        return value
+
     instrument = Parameter()
 
     def requires(self):
@@ -38,7 +44,7 @@ class VolatilityReport(Task):
 
 
     def analyze(self, granularity):
-        ddf = dd.read_parquet(os.getenv('local_location') + 'rates/' + str(self.instrument) + '_' + granularity + '/' + 'part.*.parquet')
+        ddf = dd.read_parquet(self.return_env('local_location') + 'rates/' + str(self.instrument) + '_' + granularity + '/' + 'part.*.parquet')
         pdf = self.calculate(ddf)
         # ddf = ddf.astype({'complete':'bool', 'volume':'int64', 'o':'float64', 'h':'float64', 'l':'float64', 'c':'float64' })
         # ddf = ddf[ddf['complete'] == True]
@@ -56,9 +62,9 @@ class VolatilityReport(Task):
             plt.title('Weekly volatility {}'.format(self.instrument), fontsize=14)
             name = 'weekly_volatility_{}.png'.format(self.instrument)
         plt.tight_layout()
-        if not os.path.exists(os.getenv("local_location") + "images/"):
-            os.makedirs(os.getenv("local_location") + "images/")
-        ax.savefig(os.getenv('local_location') + 'images/' + name)
+        if not os.path.exists(self.return_env("local_location") + "images/"):
+            os.makedirs(self.return_env("local_location") + "images/")
+        ax.savefig(self.return_env('local_location') + 'images/' + name)
 
 
     def run(self, *args, **options):

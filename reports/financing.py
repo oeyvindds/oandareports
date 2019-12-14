@@ -14,12 +14,17 @@ from tools.tradinghistory import GetTradingHistory
 register_matplotlib_converters()
 
 class FinancingReport(Task):
+    def return_env(value):
+        value = os.getenv(value)
+        if value == None:
+            value = 'not_availiable'
+        return value
 
     requires = Requires()
     other = Requirement(GetTradingHistory)
 
     # Set output location
-    output = TargetOutput(os.getenv('local_location') + '/image')
+    output = TargetOutput(return_env('local_location') + '/image')
 
     df_list = []
 
@@ -32,9 +37,9 @@ class FinancingReport(Task):
             plt.xticks(rotation=45)
             plt.tight_layout()
             fig = sns_plot.get_figure()
-            if not os.path.exists(os.getenv("local_location") + "images/"):
-                os.makedirs(os.getenv("local_location") + "images/")
-            fig.savefig(os.getenv('local_location') + 'images/' + '{}.png'.format(i))
+            if not os.path.exists(self.return_env("local_location") + "images/"):
+                os.makedirs(self.return_env("local_location") + "images/")
+            fig.savefig(self.return_env('local_location') + 'images/' + '{}.png'.format(i))
             fig.clf()
 
     def calculate(self, dsk):
@@ -53,7 +58,7 @@ class FinancingReport(Task):
 
     def run(self):
 
-        dsk = dd.read_parquet(os.getenv('local_location') + 'trading_history/*.parquet')
+        dsk = dd.read_parquet(self.return_env('local_location') + 'trading_history/*.parquet')
         # dsk['time'] = dsk['time'].astype("M8[D]")
         # dsk = dsk.set_index('time')
         # dsk = dsk[dsk['type'].isin(['DAILY_FINANCING'])]

@@ -16,6 +16,12 @@ class CorrelationReport(Task):
     granularity = Parameter()
     instruments = []
 
+    def return_env(value):
+        value = os.getenv(value)
+        if value == None:
+            value = 'not_availiable'
+        return value
+
     def requires(self):
         return [build([GetHistoricRates(instrument=x, granularity=self.granularity)], local_scheduler=True) for x in self.instruments]
 
@@ -31,7 +37,7 @@ class CorrelationReport(Task):
 
     def extract(self, instrument, granularity):
         ddf = dd.read_parquet(
-            os.getenv('local_location') + 'rates/' + instrument + '_' + granularity + '/' + 'part.*.parquet')
+            self.return_env('local_location') + 'rates/' + instrument + '_' + granularity + '/' + 'part.*.parquet')
         ddf = self.calculate(ddf, instrument)
         # ddf = ddf[ddf['complete'] == True]
         # ddf = ddf[['c','time']]
@@ -43,7 +49,7 @@ class CorrelationReport(Task):
 
 
     def run(self):
-        dsk = dd.read_parquet(os.getenv("local_location") + "trading_history/*.parquet")
+        dsk = dd.read_parquet(self.return_env("local_location") + "trading_history/*.parquet")
         self.instruments = dsk['instrument'].drop_duplicates().compute()
         self.instruments = list(self.instruments.values)[1:]
         self.requires()
@@ -58,6 +64,6 @@ class CorrelationReport(Task):
         fig = sns_plot.get_figure()
         plt.title('Correlation of instruments in the portfolio with granularity {}'.format(self.granularity))
         name = 'correlation' + self.granularity + '.png'
-        if not os.path.exists(os.getenv("local_location") + "images/"):
-            os.makedirs(os.getenv("local_location") + "images/")
-        fig.savefig(os.getenv('local_location') + 'images/' + name)
+        if not os.path.exists(self.return_env("local_location") + "images/"):
+            os.makedirs(self.return_env("local_location") + "images/")
+        fig.savefig(self.return_env('local_location') + 'images/' + name)

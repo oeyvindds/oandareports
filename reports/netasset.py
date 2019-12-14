@@ -11,6 +11,11 @@ from tools.tradinghistory import GetTradingHistory
 
 
 class NetAssetReport(Task):
+    def return_env(value):
+        value = os.getenv(value)
+        if value == None:
+            value = 'not_availiable'
+        return value
 
     requires = Requires()
     other = Requirement(GetTradingHistory)
@@ -18,8 +23,8 @@ class NetAssetReport(Task):
     def output(self):
         # Remove old image, and replace it with a new one
         with suppress(FileNotFoundError):
-            os.remove(os.getenv("local_location") + "images/" + "netassets.png")
-        return LocalTarget(os.getenv("local_location") + "images/" + "netassets.png", format=Nop)
+            os.remove(self.return_env("local_location") + "images/" + "netassets.png")
+        return LocalTarget(self.return_env("local_location") + "images/" + "netassets.png", format=Nop)
 
     def calculate(self, dsk):
         dsk = dsk[dsk.type.isin(["ORDER_FILL"])]
@@ -34,7 +39,7 @@ class NetAssetReport(Task):
 
 
     def run(self):
-        dsk = dd.read_parquet(os.getenv("local_location") + "trading_history/*.parquet")
+        dsk = dd.read_parquet(self.return_env("local_location") + "trading_history/*.parquet")
         df = self.calculate(dsk)
         cmap = cm.get_cmap("tab20c", 15)
         fig, ax = plt.subplots(figsize=(10, 7))

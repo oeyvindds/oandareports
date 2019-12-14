@@ -17,15 +17,23 @@ load_dotenv()
 from helperfiles.task import TargetOutput, Requires, Requirement
 from helperfiles.target import ParquetTarget
 
+class env_workaround():
+    def return_env(self, value):
+        value = os.getenv(value)
+        if value == None:
+            value = 'not_availiable'
+        return value
+
 class S3(ExternalTask):
-    output = TargetOutput(os.getenv('S3_location')+'historicdata/', target_class=ParquetTarget)
+    output = TargetOutput(env_workaround().return_env('S3_location')+'historicdata/', target_class=ParquetTarget)
 
 class DownloadS3(ExternalTask):
+
     requires = Requires()
     other = Requirement(S3)
 
     # Set output location
-    output = TargetOutput(os.getenv('local_location')+'rates/', target_class=ParquetTarget)
+    output = TargetOutput(env_workaround().return_env('local_location')+'rates/', target_class=ParquetTarget)
 
     def run(self):
         input_target = next(iter(self.input().items()))[1]
@@ -38,15 +46,15 @@ class GetHistoricRates(Task):
     instrument = Parameter()
     granularity = Parameter()
 
-    client = API(access_token=os.getenv('TOKEN'), environment=os.getenv('OandaEnv'))
+    client = API(access_token=env_workaround().return_env('TOKEN'), environment=env_workaround().return_env('OandaEnv'))
 
     def output(self):
-        return ParquetTarget(os.getenv('local_location') + 'rates/' + self.instrument + '_' + self.granularity + '/')
+        return ParquetTarget(env_workaround().return_env(self, 'local_location') + 'rates/' + self.instrument + '_' + self.granularity + '/')
 
     def s3output(self):
-        return ParquetTarget(os.getenv('S3_location') + 'rates/' + self.instrument + '_' + self.granularity + '/')
+        return ParquetTarget(env_workaround().return_env(self, 'S3_location') + 'rates/' + self.instrument + '_' + self.granularity + '/')
 
-    s3store = TargetOutput(os.getenv('S3_location') + 'historicdata/', target_class=ParquetTarget)
+    s3store = TargetOutput(env_workaround().return_env('S3_location') + 'historicdata/', target_class=ParquetTarget)
 
     requires = Requires()
 
@@ -60,7 +68,7 @@ class GetHistoricRates(Task):
 
     def run(self):
         dsk = None
-        if ParquetTarget(os.getenv('local_location') + 'rates/' + self.instrument +'/').exists():
+        if ParquetTarget(env_workaround().return_env(self, 'local_location') + 'rates/' + self.instrument +'/').exists():
             input_target = next(iter(self.input()))
             dsk = input_target.read()
 

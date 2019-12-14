@@ -20,13 +20,18 @@ from shutil import rmtree
 # pipenv run luigi --module tradinghistory GetTradingHistory --local-scheduler
 
 class MoveToArchieve(Task):
-    if ParquetTarget(os.getenv('local_location') + 'trading_history/').exists() == False:
+
+    local_location =  os.getenv('local_location')
+    if local_location == None:
+        local_location = 'data/'
+
+    if ParquetTarget(local_location + 'trading_history/').exists() == False:
         def complete(self):
             return True
 
-    if ParquetTarget(os.getenv('local_location') + 'trading_history/').exists():
-        output = TargetOutput(os.getenv('local_location') + 'archive/', target_class=ParquetTarget)
-        trading_history = ParquetTarget('./'+ os.getenv('local_location') + 'trading_history/')
+    if ParquetTarget(local_location + 'trading_history/').exists():
+        output = TargetOutput(local_location + 'archive/', target_class=ParquetTarget)
+        trading_history = ParquetTarget(local_location + 'trading_history/')
         #TargetOutput(os.getenv('local_location') + 'trading_history/')
             #ParquetTarget('./'+ os.getenv('local_location') + 'trading_history/')
 
@@ -41,12 +46,18 @@ class MoveToArchieve(Task):
                 #shutil.rmtree(os.getenv('local_location') + 'trading_history/', ignore_errors=True)
 
 
-
+class env_workaround():
+    def return_env(self, value):
+        value = os.getenv(value)
+        if value == None:
+            value = 'not_availiable'
+        return value
 
 
 
 class S3(ExternalTask):
-    output = TargetOutput(os.getenv('S3_location')+'tradinghistory/', target_class=ParquetTarget)
+
+    output = TargetOutput(env_workaround().return_env('S3_location')+'tradinghistory/', target_class=ParquetTarget)
 
 
 class DownloadS3(ExternalTask):
@@ -54,7 +65,7 @@ class DownloadS3(ExternalTask):
     other = Requirement(S3)
 
     # Set output location
-    output = TargetOutput(os.getenv('local_location')+'archive/', target_class=ParquetTarget)
+    output = TargetOutput(env_workaround().return_env('local_location') +'archive/', target_class=ParquetTarget)
 
     def run(self):
         input_target = next(iter(self.input().items()))[1]
@@ -66,25 +77,25 @@ class GetTradingHistory(Task):
 
     storage = Parameter(default='')
 
-    client = API(access_token=os.getenv('TOKEN'), environment=os.getenv('OandaEnv'))
+    client = API(access_token=env_workaround().return_env('TOKEN'), environment=env_workaround().return_env('OandaEnv'))
 
-    if ParquetTarget(os.getenv('local_location') + 'archive/').exists():
+    if ParquetTarget(env_workaround().return_env('local_location') + 'archive/').exists():
         with suppress(FileNotFoundError):
-            shutil.rmtree(os.getenv('local_location') + 'archive/', ignore_errors=True)
+            shutil.rmtree(env_workaround().return_env('local_location') + 'archive/', ignore_errors=True)
 
     def requires(self):
         if self.storage == 's3':
-            if ParquetTarget(os.getenv('S3_location')+'tradinghistory/').exists():
+            if ParquetTarget(env_workaround().return_env('S3_location')+'tradinghistory/').exists():
                 return [DownloadS3()]
         return MoveToArchieve()
 
-    output = TargetOutput('./'+ os.getenv('local_location')+ 'archive/', target_class=ParquetTarget)
-    store = TargetOutput('./' + os.getenv('local_location') + 'trading_history/', target_class=ParquetTarget)
-    s3store = TargetOutput(os.getenv('S3_location') + 'tradinghistory/', target_class=ParquetTarget)
+    output = TargetOutput('./'+ env_workaround().return_env('local_location')+ 'archive/', target_class=ParquetTarget)
+    store = TargetOutput('./' + env_workaround().return_env('local_location') + 'trading_history/', target_class=ParquetTarget)
+    s3store = TargetOutput(env_workaround().return_env('S3_location') + 'tradinghistory/', target_class=ParquetTarget)
 
 
     def gettransaction(self, first, last):
-        trans = transactions.TransactionIDRange(accountID=os.getenv('ACCOUNT_ID'), params={"from": first, "to": last})
+        trans = transactions.TransactionIDRange(accountID=env_workaround().return_env('ACCOUNT_ID'), params={"from": first, "to": last})
         trans = self.client.request(trans)
 
         return trans
@@ -93,8 +104,8 @@ class GetTradingHistory(Task):
         last_trans = int(self.gettransaction(1, 2)['lastTransactionID'])
         pbar = tqdm(last_trans)
 
-        if ParquetTarget('./'+ os.getenv('local_location') + 'archive/').exists():
-            dsk = dd.read_parquet('./'+ os.getenv('local_location') + 'archive/*.parquet')
+        if ParquetTarget('./'+ env_workaround().return_env('local_location') + 'archive/').exists():
+            dsk = dd.read_parquet('./'+ env_workaround().return_env('local_location') + 'archive/*.parquet')
             #last_trans = 160000
         else:
             trans_df = self.gettransaction(1, 1000)
