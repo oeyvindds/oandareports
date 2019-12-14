@@ -14,6 +14,11 @@ register_matplotlib_converters()
 
 
 class OpenTradesReport(Task):
+    def return_env(value):
+        value = os.getenv(value)
+        if value == None:
+            value = 'not_availiable'
+        return value
 
     requires = Requires()
     other = Requirement(GetTradingHistory)
@@ -28,7 +33,7 @@ class OpenTradesReport(Task):
                 [GetHistoricRates(instrument=i, granularity="H1")], local_scheduler=True
             )
             ddf_rate = dd.read_parquet(
-                os.getenv("local_location")
+                self.return_env("local_location")
                 + "rates/"
                 + i
                 + "_"
@@ -51,10 +56,10 @@ class OpenTradesReport(Task):
             plt.ylabel("USD")
             plt.title("Transactions for {}".format(i))
             plt.legend(handles=scatter.legend_elements()[0],labels=['Sell','Buy'])
-            if not os.path.exists(os.getenv("local_location") + "images/"):
-                os.makedirs(os.getenv("local_location") + "images/")
+            if not os.path.exists(self.return_env("local_location") + "images/"):
+                os.makedirs(self.return_env("local_location") + "images/")
             fig.savefig(
-                os.getenv("local_location") + "images/" + "order_flow_{}.png".format(i)
+                self.return_env("local_location") + "images/" + "order_flow_{}.png".format(i)
             )
 
     def calculate(self, dsk):
@@ -69,7 +74,7 @@ class OpenTradesReport(Task):
     def run(self):
         #requires = Requires()
         #other = Requirement(GetTradingHistory)
-        dsk = dd.read_parquet(os.getenv("local_location") + "trading_history/*.parquet")
+        dsk = dd.read_parquet(self.return_env("local_location") + "trading_history/*.parquet")
         dsk = self.calculate(dsk)
         # dsk["time"] = dsk["time"].astype("M8[D]")
         # dsk = dsk[dsk["type"].isin(["ORDER_FILL"])]

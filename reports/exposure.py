@@ -15,12 +15,17 @@ from tools.tradinghistory import GetTradingHistory
  #   output = TargetOutput('../'+ os.getenv('local_location'), target_class=ParquetTarget)
 
 class ExposureReport(Task):
+    def return_env(value):
+        value = os.getenv(value)
+        if value == None:
+            value = 'not_availiable'
+        return value
 
     requires = Requires()
     other = Requirement(GetTradingHistory)
 
     # Set output location
-    output = TargetOutput('../'+ os.getenv('local_location') + 'reports/', target_class=ParquetTarget)
+    output = TargetOutput('../'+ return_env('local_location') + 'reports/', target_class=ParquetTarget)
 
     df_list = []
 
@@ -48,9 +53,9 @@ class ExposureReport(Task):
         plt.tight_layout()
         fig = sns_plot.get_figure()
         name = instrument + '_' + 'exposure.png'
-        if not os.path.exists(os.getenv('local_location') + 'images/'):
-            os.makedirs(os.getenv('local_location') + 'images/')
-        fig.savefig(os.getenv('local_location') + 'images/' + name)
+        if not os.path.exists(self.return_env('local_location') + 'images/'):
+            os.makedirs(self.return_env('local_location') + 'images/')
+        fig.savefig(self.return_env('local_location') + 'images/' + name)
         fig.clf()
 
 
