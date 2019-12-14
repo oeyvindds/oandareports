@@ -21,7 +21,10 @@ class env_workaround():
     def return_env(self, value):
         value = os.getenv(value)
         if value == None:
-            value = 'not_availiable'
+            if value == 'OandaEnv':
+                value == 'practice'
+            else:
+                value = 'not_availiable'
         return value
 
 class S3(ExternalTask):
