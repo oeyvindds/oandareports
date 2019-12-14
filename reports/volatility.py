@@ -13,7 +13,7 @@ from helperfiles.target import ParquetTarget
 from tools.historicrates import GetHistoricRates
 
 class VolatilityReport(Task):
-    help = "Will create volatility-report for specified instrument"
+    help = "To create volatility-report for specified instrument"
 
     instrument = Parameter()
 
@@ -27,7 +27,7 @@ class VolatilityReport(Task):
         parser.add_argument('--instrument', nargs='2', type=str)
 
     def analyze(self, granularity):
-        ddf = dd.read_parquet(os.getenv('local_location') + 'rates/' + self.instrument + '_' + granularity + '/' + 'part.*.parquet')
+        ddf = dd.read_parquet(os.getenv('local_location') + 'rates/' + str(self.instrument) + '_' + granularity + '/' + 'part.*.parquet')
         ddf = ddf.astype({'complete':'bool', 'volume':'int64', 'o':'float64', 'h':'float64', 'l':'float64', 'c':'float64' })
         ddf = ddf[ddf['complete'] == True]
         ddf['time'] = dd.to_datetime(ddf['time'])
@@ -54,3 +54,4 @@ class VolatilityReport(Task):
     def run(self, *args, **options):
         day = self.analyze('D')
         week = self.analyze('W')
+

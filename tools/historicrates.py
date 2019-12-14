@@ -1,4 +1,8 @@
 
+# Todo: Add comments
+# Todo: Add parameter to delete local copy
+# Todo: Automatic deletion of S3 after download
+
 import os
 from luigi.parameter import Parameter
 from luigi import Task, ExternalTask
@@ -9,16 +13,9 @@ import pandas as pd
 import dask.dataframe as dd
 from dotenv import load_dotenv
 load_dotenv()
-#from oandareports import helperfiles
 
 from helperfiles.task import TargetOutput, Requires, Requirement
-#from helperfiles.task import TargetOutput, Requires, Requirement
 from helperfiles.target import ParquetTarget
-
-# Todo: Add comments
-
-# Todo: Add parameter to delete local copy
-# Todo: Automatic deletion of S3 after download
 
 class S3(ExternalTask):
     output = TargetOutput(os.getenv('S3_location')+'historicdata/', target_class=ParquetTarget)
@@ -54,8 +51,6 @@ class GetHistoricRates(Task):
     requires = Requires()
 
     def fetch(self):
-        #if self.instrument.isinstance('list'):
-        #    self.instrument == self.instrument[0]
         params = {"count": 5000, "granularity": self.granularity}
         r = v20instruments.InstrumentsCandles(instrument=self.instrument, params=params)
         self.client.request(r)

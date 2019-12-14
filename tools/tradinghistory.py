@@ -72,9 +72,6 @@ class GetTradingHistory(Task):
         with suppress(FileNotFoundError):
             shutil.rmtree(os.getenv('local_location') + 'archive/', ignore_errors=True)
 
-    #requires = Requires()
-    #other = Requirement(MoveToArchieve)
-
     def requires(self):
         if self.storage == 's3':
             if ParquetTarget(os.getenv('S3_location')+'tradinghistory/').exists():
