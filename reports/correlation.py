@@ -19,15 +19,26 @@ class CorrelationReport(Task):
     def requires(self):
         return [build([GetHistoricRates(instrument=x, granularity=self.granularity)], local_scheduler=True) for x in self.instruments]
 
-    def extract(self, instrument, granularity):
-        ddf = dd.read_parquet(
-            os.getenv('local_location') + 'rates/' + instrument + '_' + granularity + '/' + 'part.*.parquet')
+    def calculate(self, ddf, instrument):
         ddf = ddf[ddf['complete'] == True]
         ddf = ddf[['c','time']]
         ddf = ddf.astype({'c':'float64' })
         ddf = ddf.rename(columns={'c':instrument})
         ddf['time'] = dd.to_datetime(ddf['time'])
         ddf = ddf.set_index('time')
+        return ddf
+
+
+    def extract(self, instrument, granularity):
+        ddf = dd.read_parquet(
+            os.getenv('local_location') + 'rates/' + instrument + '_' + granularity + '/' + 'part.*.parquet')
+        ddf = self.calculate(ddf, instrument)
+        # ddf = ddf[ddf['complete'] == True]
+        # ddf = ddf[['c','time']]
+        # ddf = ddf.astype({'c':'float64' })
+        # ddf = ddf.rename(columns={'c':instrument})
+        # ddf['time'] = dd.to_datetime(ddf['time'])
+        # ddf = ddf.set_index('time')
         return ddf
 
 
@@ -47,5 +58,6 @@ class CorrelationReport(Task):
         fig = sns_plot.get_figure()
         plt.title('Correlation of instruments in the portfolio with granularity {}'.format(self.granularity))
         name = 'correlation' + self.granularity + '.png'
-        ##TODO: Make directory if not existing
+        if not os.path.exists(os.getenv("local_location") + "images/"):
+            os.makedirs(os.getenv("local_location") + "images/")
         fig.savefig(os.getenv('local_location') + 'images/' + name)

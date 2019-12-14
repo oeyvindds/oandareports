@@ -7,11 +7,16 @@ from helperfiles.task import TargetOutput
 from pandas.plotting import register_matplotlib_converters
 from tools.historicrates import GetHistoricRates
 import datetime as datetime
+from helperfiles.task import TargetOutput, Requires, Requirement
+from tools.tradinghistory import GetTradingHistory
 
 register_matplotlib_converters()
 
 
 class OpenTradesReport(Task):
+
+    requires = Requires()
+    other = Requirement(GetTradingHistory)
 
     def order_flow(self, dsk):
         df = dsk.compute()
@@ -46,17 +51,31 @@ class OpenTradesReport(Task):
             plt.ylabel("USD")
             plt.title("Transactions for {}".format(i))
             plt.legend(handles=scatter.legend_elements()[0],labels=['Sell','Buy'])
+            if not os.path.exists(os.getenv("local_location") + "images/"):
+                os.makedirs(os.getenv("local_location") + "images/")
             fig.savefig(
                 os.getenv("local_location") + "images/" + "order_flow_{}.png".format(i)
             )
 
-    def run(self):
-        dsk = dd.read_parquet(os.getenv("local_location") + "trading_history/*.parquet")
+    def calculate(self, dsk):
         dsk["time"] = dsk["time"].astype("M8[D]")
         dsk = dsk[dsk["type"].isin(["ORDER_FILL"])]
         dsk = dsk[["time", "instrument", "units", "price"]]
         dsk["units"] = dsk["units"].astype("int64")
         dsk["price"] = dsk["price"].astype("float64")
+        return dsk
+
+
+    def run(self):
+        #requires = Requires()
+        #other = Requirement(GetTradingHistory)
+        dsk = dd.read_parquet(os.getenv("local_location") + "trading_history/*.parquet")
+        dsk = self.calculate(dsk)
+        # dsk["time"] = dsk["time"].astype("M8[D]")
+        # dsk = dsk[dsk["type"].isin(["ORDER_FILL"])]
+        # dsk = dsk[["time", "instrument", "units", "price"]]
+        # dsk["units"] = dsk["units"].astype("int64")
+        # dsk["price"] = dsk["price"].astype("float64")
         self.order_flow(dsk)
 
 

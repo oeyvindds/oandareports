@@ -12,6 +12,7 @@ from reports.correlation import CorrelationReport
 
 
 
+
 #def main():
 
 # Create the parser
@@ -25,7 +26,8 @@ my_parser = argparse.ArgumentParser(description='CLI for Oandareports')
 #
 my_parser.add_argument('function', action='store', nargs=1, type=str, metavar='function', help="""The function you want to run: Alternatives 
 are 'report' for creating a report, 'historic' for historic rates, 'trading' for trading history, 'stream' for streaming rates, 
-'volatility' for volatility report, 'exposure' for exposure report, 'financing' for financing report, 'netassets' for net assets report""")
+'volatility' for volatility report, 'exposure' for exposure report, 'financing' for financing report, 'netassets' for net assets report,
+'correlation' for correlation report, 'automated' for automated trader""")
 
 my_parser.add_argument('-i',
                        '--instrument',
@@ -72,11 +74,11 @@ elif args.function[0] == 'trading':
 
 elif args.function[0] == 'stream':
 
-    #try:
-    instrument = args.instrument[0]
-    #except TypeError:
-        #print("Add an instrument with flag -i for this to work. -h for help")
-        #exit()
+    try:
+        instrument = args.instrument[0]
+    except TypeError:
+        print("Add an instrument with flag -i for this to work. -h for help")
+        exit()
     #import streaming
     #instrument = args.instrument[0]
     import examples.streaming
@@ -122,6 +124,10 @@ elif args.function[0] == 'correlation':
         print("Add granularity with flag -g for this to work. -h for help")
         exit()
     task = build([CorrelationReport(granularity=granularity)], local_scheduler=True)
+
+elif args.function[0] == 'automated':
+    from examples import automated_trader
+    automated_trader()
 
 else:
     print("You need to add a function. Type -h for help.")

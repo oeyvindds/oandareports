@@ -18,39 +18,38 @@ class ExposureReport(Task):
 
     requires = Requires()
     other = Requirement(GetTradingHistory)
-    #except:
-        #print('kvakk')
 
     # Set output location
     output = TargetOutput('../'+ os.getenv('local_location') + 'reports/', target_class=ParquetTarget)
 
     df_list = []
 
-    def create_graph(self, instrument, dsk):
-        dsk = dsk[dsk.instrument == instrument]
+    def calculate(self, dsk):
         dsk['units'] = dsk['units'].astype('int64')
-        #dsk['cum_sum'] = dsk['units'].cumsum()
-        #dsk['time'] = dd.to_datetime(dsk['time'])
         dsk['time'] = dsk['time'].astype("M8[h]")
-        #dsk['time'] = dsk["time"].dt.hour
-        #dsk['time'] = dd.to_datetime(dsk['time'])
-        #TODO: Add parameter for dato
-        #dsk = dsk[dsk['time'] > '2019-10-30']
-        #print('kvakk')
         df = dsk.compute()
         df['cum_sum'] = df['units'].cumsum()
+        return df
+
+
+    def create_graph(self, instrument, dsk):
+        dsk = dsk[dsk.instrument == instrument]
+        df = self.calculate(dsk)
+        # dsk['units'] = dsk['units'].astype('int64')
+        # dsk['time'] = dsk['time'].astype("M8[h]")
+        # df = dsk.compute()
+        # df['cum_sum'] = df['units'].cumsum()
         ax = plt.gca()
         sns_plot = sns.lineplot(df['time'], df['cum_sum'], estimator=None)
         sns_plot.set_title('Cummulative exposure in {} units'.format(instrument))
         sns_plot.set_ylabel('Cummulative units')
         sns_plot.set_xlabel('Timeframe')
-        #ax.xaxis.set_major_locator(mdates.DayLocator())
         plt.xticks(rotation=45)
         plt.tight_layout()
-        #plt.show()
         fig = sns_plot.get_figure()
         name = instrument + '_' + 'exposure.png'
-        #TODO: Make directory if not existing
+        if not os.path.exists(os.getenv('local_location') + 'images/'):
+            os.makedirs(os.getenv('local_location') + 'images/')
         fig.savefig(os.getenv('local_location') + 'images/' + name)
         fig.clf()
 

@@ -9,10 +9,14 @@ from luigi.parameter import Parameter
 from luigi import Task, ExternalTask
 from helperfiles.task import TargetOutput, Requires, Requirement
 from pandas.plotting import register_matplotlib_converters
+from tools.tradinghistory import GetTradingHistory
 
 register_matplotlib_converters()
 
 class FinancingReport(Task):
+
+    requires = Requires()
+    other = Requirement(GetTradingHistory)
 
     # Set output location
     output = TargetOutput(os.getenv('local_location') + '/image')
@@ -28,14 +32,12 @@ class FinancingReport(Task):
             plt.xticks(rotation=45)
             plt.tight_layout()
             fig = sns_plot.get_figure()
-            #TODO: Make directory if not existing
+            if not os.path.exists(os.getenv("local_location") + "images/"):
+                os.makedirs(os.getenv("local_location") + "images/")
             fig.savefig(os.getenv('local_location') + 'images/' + '{}.png'.format(i))
             fig.clf()
 
-
-    def run(self):
-        dsk = dd.read_parquet(os.getenv('local_location') + 'trading_history/*.parquet')
-        #dsk['time'] = dd.to_datetime(dsk['time'])
+    def calculate(self, dsk):
         dsk['time'] = dsk['time'].astype("M8[D]")
         dsk = dsk.set_index('time')
         dsk = dsk[dsk['type'].isin(['DAILY_FINANCING'])]
@@ -45,6 +47,21 @@ class FinancingReport(Task):
         dsk['accountBalance'] = dsk['accountBalance'].astype('float64')
         df = dsk.compute()
         df['financing'] = df['financing'].cumsum(axis=0)
-        #print(df.head())
+        return df
+
+
+
+    def run(self):
+
+        dsk = dd.read_parquet(os.getenv('local_location') + 'trading_history/*.parquet')
+        # dsk['time'] = dsk['time'].astype("M8[D]")
+        # dsk = dsk.set_index('time')
+        # dsk = dsk[dsk['type'].isin(['DAILY_FINANCING'])]
+        # dsk = dsk[['amount', 'accountBalance', 'financing']]
+        # dsk['financing'] = dsk['financing'].fillna(0.0)
+        # dsk['financing'] = dsk['financing'].astype('float64')
+        # dsk['accountBalance'] = dsk['accountBalance'].astype('float64')
+        # df = dsk.compute()
+        # df['financing'] = df['financing'].cumsum(axis=0)
+        df = self.calculate(dsk)
         self.create_graph(df)
-        #df.to_csv('temp.csv')

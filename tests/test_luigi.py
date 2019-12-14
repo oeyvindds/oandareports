@@ -3,7 +3,7 @@ import luigi
 from luigi import Task
 from unittest import TestCase
 
-"""Tests for luigi itself, and that it is imported correctly"""
+"""Tests for luigi itself"""
 
 
 class DummyTask(Task):
