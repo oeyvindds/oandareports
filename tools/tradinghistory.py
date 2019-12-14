@@ -77,7 +77,7 @@ class GetTradingHistory(Task):
 
     storage = Parameter(default='')
 
-    client = API(access_token=env_workaround().return_env('TOKEN'), environment=env_workaround().return_env('OandaEnv'))
+    client = API(access_token=env_workaround().return_env('TOKEN'), environment='practice')
 
     if ParquetTarget(env_workaround().return_env('local_location') + 'archive/').exists():
         with suppress(FileNotFoundError):
