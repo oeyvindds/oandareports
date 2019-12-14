@@ -9,6 +9,7 @@ from contextlib import suppress
 from helperfiles.task import TargetOutput, Requires, Requirement
 from tools.tradinghistory import GetTradingHistory
 
+
 class NetAssetReport(Task):
 
     requires = Requires()
@@ -20,8 +21,7 @@ class NetAssetReport(Task):
             os.remove(os.getenv("local_location") + "images/" + "netassets.png")
         return LocalTarget(os.getenv("local_location") + "images/" + "netassets.png", format=Nop)
 
-    def run(self):
-        dsk = dd.read_parquet(os.getenv("local_location") + "trading_history/*.parquet")
+    def calculate(self, dsk):
         dsk = dsk[dsk.type.isin(["ORDER_FILL"])]
         dsk["time"] = dsk["time"].astype("M8[D]")
         dsk = dsk[["instrument", "time", "units", "price"]]
@@ -30,6 +30,12 @@ class NetAssetReport(Task):
         dsk["cumsum"] = dsk.groupby(["instrument"])["units"].cumsum()
         dsk["value"] = abs(dsk["price"] * dsk["cumsum"])
         df = dsk.compute()
+        return df
+
+
+    def run(self):
+        dsk = dd.read_parquet(os.getenv("local_location") + "trading_history/*.parquet")
+        df = self.calculate(dsk)
         cmap = cm.get_cmap("tab20c", 15)
         fig, ax = plt.subplots(figsize=(10, 7))
         max_position = []
@@ -46,10 +52,8 @@ class NetAssetReport(Task):
 
         plt.title("Total portfolio exposure")
         plt.ylabel("Exposure in USD")
-        #print(max_position)
         plt.ylim(0,(max(max_position)+max(max_position)*0.1))
         plt.xlim(df["time"].max() - datetime.timedelta(days=30), df["time"].max())
-        #image = plt.savefig(os.getenv("local_location") + "images/" + "netassets.png")
         if not os.path.exists(os.path.dirname(self.output().path)):
             os.makedirs(os.path.dirname(self.output().path))
         with open(self.output().path, 'wb') as out_file:

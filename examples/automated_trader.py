@@ -5,13 +5,14 @@ import oandapyV20.endpoints.instruments as instruments
 import oandapyV20.endpoints.orders as orders
 from time import sleep
 from dotenv import load_dotenv
+load_dotenv()
 
 class MovingAverageTrader:
 
     def __init__(self, short_timeframe=50, long_timeframe=200, instrument='EUR_USD', granularity='S5', volume = 1000):
         self.params = {'granularity': granularity, 'count': long_timeframe}
         self.accountID = os.environ['ACCOUNT_ID']
-        self.client = oandapyV20.API(access_token=os.environ['TOKEN'])
+        self.client = oandapyV20.API(access_token=os.environ['TOKEN'], environment=os.getenv('OandaEnv'))
         self.short_timeframe = short_timeframe
         self.long_timeframe = long_timeframe
         self.instrument = instrument
@@ -45,7 +46,6 @@ class MovingAverageTrader:
         return np.array(short_list).astype(np.float).mean(), np.array(long_list).astype(np.float).mean()
 
 n = MovingAverageTrader()
-load_dotenv()
 
 while 1 == 1:
     candle_list = n.get_candles()

@@ -24,8 +24,8 @@ INSTALLATION
 
 Your .env file needs the following keys:
 
-- AWS_ACCESS_KEY_ID= For Amazon S3
-- AWS_SECRET_ACCESS_KEY= For Amazon S3
+- AWS_ACCESS_KEY_ID= Access key for Amazon S3
+- AWS_SECRET_ACCESS_KEY= Secret key for Amazon S3
 - S3_location = Directory for storing at S3. Example: s3://oanda/
 - TOKEN= Token from Oanda
 - ACCOUNT_ID= Account id from Oanda
@@ -37,3 +37,11 @@ USAGE
 
 NOTES
 -----
+
+
+TROUBLESHOOTING
+---------------
+
+Error:   TypeError: unsupported operand type(s) for +: 'NoneType' and 'str'
+
+If the program cannot find a .env file with the needed information, it will give this error. This in particular means that it cannot create a link of a non-existent path

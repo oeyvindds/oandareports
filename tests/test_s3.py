@@ -4,6 +4,7 @@ from unittest import TestCase
 import tempfile
 from luigi.contrib.s3 import S3Client, S3Target
 
+
 # Moto just need any keys
 AWS_ACCESS_KEY = "XXXXXXXXXXXXXXXXXXXX"
 AWS_SECRET_KEY = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
@@ -49,12 +50,12 @@ class TestS3Target(TestCase):
         """
         create_bucket()
 
-        s3_dir = "s3://advpython/pset_5/yelp_data/"
+        s3_dir = "s3://advpython/oanda/data/"
         self.s3_client.mkdir(s3_dir)
 
         self.assertTrue(self.s3_client.exists(s3_dir))
 
-        s3_dest = "s3://advpython/pset_5/new_yelp_data/"
+        s3_dest = "s3://advpython/oanda/new_data/"
         self.s3_client.mkdir(s3_dest)
 
         self.assertTrue(self.s3_client.exists(s3_dest))
