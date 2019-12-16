@@ -26,6 +26,7 @@ class VolatilityReport(Task):
         return value
 
     instrument = Parameter()
+    figs = []
 
     def requires(self):
         # Utilize the task from the tools to get the historic prices
@@ -86,6 +87,7 @@ class VolatilityReport(Task):
         if not os.path.exists(self.return_env("local_location") + "images/"):
             os.makedirs(self.return_env("local_location") + "images/")
         ax.savefig(self.return_env("local_location") + "images/" + name)
+        self.figs.append(ax)
 
     def run(self, *args, **options):
         # Change D and W here to whatever you want, if you need another timeframe

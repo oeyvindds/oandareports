@@ -30,6 +30,7 @@ class FinancingReport(Task):
     output = TargetOutput(env_workaround().return_env("local_location") + "/image")
 
     df_list = []
+    figs = []
 
     def create_graph(self, df):
         # Creating the graphs
@@ -50,7 +51,7 @@ class FinancingReport(Task):
                 + "images/"
                 + "{}.png".format(i)
             )
-            fig.clf()
+            self.figs.append(fig)
 
     def calculate(self, dsk):
         " Doea the calculations"

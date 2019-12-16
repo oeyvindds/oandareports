@@ -30,6 +30,8 @@ class ExposureReport(Task):
     )
 
     df_list = []
+    # Placeholder for plot
+    fig = object
 
     def calculate(self, dsk):
         # Do the necessary calculations
@@ -57,7 +59,9 @@ class ExposureReport(Task):
         ):
             os.makedirs(env_workaround().return_env("local_location") + "images/")
         fig.savefig(env_workaround().return_env("local_location") + "images/" + name)
-        fig.clf()
+
+        # return the object to the caller
+        self.fig = fig
 
     def run(self):
         # Save the graphs

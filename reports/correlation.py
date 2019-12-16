@@ -28,6 +28,7 @@ class CorrelationReport(Task):
 
     granularity = Parameter()
     instruments = []
+    fig = object
 
     def requires(self):
         return [
@@ -93,3 +94,4 @@ class CorrelationReport(Task):
         ):
             os.makedirs(env_workaround().return_env("local_location") + "images/")
         fig.savefig(env_workaround().return_env("local_location") + "images/" + name)
+        self.fig = fig
