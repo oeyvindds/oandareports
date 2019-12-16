@@ -3,9 +3,9 @@ import seaborn as sns
 import matplotlib.pylab as plt
 import dask.dataframe as dd
 from luigi import Task
-from helperfiles.task import TargetOutput, Requires, Requirement
+from ..helperfiles.task import TargetOutput, Requires, Requirement
 from pandas.plotting import register_matplotlib_converters
-from tools.tradinghistory import GetTradingHistory
+from ..tools.tradinghistory import GetTradingHistory
 
 register_matplotlib_converters()
 
@@ -30,6 +30,7 @@ class FinancingReport(Task):
     output = TargetOutput(env_workaround().return_env("local_location") + "/image")
 
     df_list = []
+    figs = []
 
     def create_graph(self, df):
         # Creating the graphs
@@ -50,7 +51,7 @@ class FinancingReport(Task):
                 + "images/"
                 + "{}.png".format(i)
             )
-            fig.clf()
+            self.figs.append(fig)
 
     def calculate(self, dsk):
         " Doea the calculations"

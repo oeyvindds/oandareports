@@ -5,8 +5,8 @@ from luigi import Task, LocalTarget
 from luigi.format import Nop
 from pylab import *
 from contextlib import suppress
-from helperfiles.task import Requires, Requirement
-from tools.tradinghistory import GetTradingHistory
+from ..helperfiles.task import Requires, Requirement
+from ..tools.tradinghistory import GetTradingHistory
 
 """This script reads your trading history and creates a net value report."""
 
@@ -21,6 +21,8 @@ class NetAssetReport(Task):
 
     requires = Requires()
     other = Requirement(GetTradingHistory)
+    # Placeholder for plot
+    fig = object
 
     def output(self):
         with suppress(FileNotFoundError):
@@ -69,3 +71,5 @@ class NetAssetReport(Task):
             os.makedirs(os.path.dirname(self.output().path))
         with open(self.output().path, "wb") as out_file:
             plt.savefig(out_file)
+
+        self.fig = plt.gcf()

@@ -4,15 +4,15 @@ import dask.dataframe as dd
 import numpy as np
 from luigi import Task, build
 from pandas.plotting import register_matplotlib_converters
-from tools.historicrates import GetHistoricRates
+from ..tools.historicrates import GetHistoricRates
 import datetime as datetime
-from helperfiles.task import Requires, Requirement
-from tools.tradinghistory import GetTradingHistory
+from ..helperfiles.task import Requires, Requirement
+from ..tools.tradinghistory import GetTradingHistory
 
 register_matplotlib_converters()
 
 """Reporting of open trades.
-It gets the instruments from your trading history, 
+It gets the instruments from your trading history,
 and creates a report based on this information"""
 
 
@@ -26,6 +26,7 @@ class OpenTradesReport(Task):
 
     requires = Requires()
     other = Requirement(GetTradingHistory)
+    figs = []
 
     def order_flow(self, dsk):
         # Read information and create graphs
@@ -70,6 +71,7 @@ class OpenTradesReport(Task):
                 + "images/"
                 + "order_flow_{}.png".format(i)
             )
+            self.figs.append(fig)
 
     def calculate(self, dsk):
         # Do the required calculations

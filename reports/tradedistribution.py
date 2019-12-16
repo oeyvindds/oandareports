@@ -5,15 +5,24 @@ from ..helperfiles.task import TargetOutput
 from pandas.plotting import register_matplotlib_converters
 from ..tools.historicrates import GetHistoricRates
 import plotly.express as px
+from ..helperfiles.task import Requires, Requirement
+from ..tools.tradinghistory import GetTradingHistory
 
 register_matplotlib_converters()
 
 
 class TradeDistributionReport(Task):
 
-    # Set output location
-    # output = TargetOutput(os.getenv('local_location') + '/image')
-    # Placeholder for plot
+    def return_env(self, value):
+        # Fix required for Travis CI
+        value = os.getenv(value)
+        if value == None:
+            value = "not_availiable"
+        return value
+
+    requires = Requires()
+    other = Requirement(GetTradingHistory)
+
     fig = object
 
 

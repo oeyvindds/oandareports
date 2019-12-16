@@ -2,9 +2,9 @@ import os
 import seaborn as sns
 import matplotlib.pylab as plt
 from luigi import Task
-from helperfiles.task import TargetOutput, Requires, Requirement
-from helperfiles.target import ParquetTarget
-from tools.tradinghistory import GetTradingHistory
+from ..helperfiles.task import TargetOutput, Requires, Requirement
+from ..helperfiles.target import ParquetTarget
+from ..tools.tradinghistory import GetTradingHistory
 
 """ This script checks your trading history and extract the exposure you have (and had) for each instrument"""
 
@@ -30,6 +30,8 @@ class ExposureReport(Task):
     )
 
     df_list = []
+    # Placeholder for plot
+    fig = object
 
     def calculate(self, dsk):
         # Do the necessary calculations
@@ -57,7 +59,9 @@ class ExposureReport(Task):
         ):
             os.makedirs(env_workaround().return_env("local_location") + "images/")
         fig.savefig(env_workaround().return_env("local_location") + "images/" + name)
-        fig.clf()
+
+        # return the object to the caller
+        self.fig = fig
 
     def run(self):
         # Save the graphs

@@ -3,7 +3,7 @@ import matplotlib.pylab as plt
 import dask.dataframe as dd
 from luigi import Task, build
 from luigi.parameter import Parameter
-from tools.historicrates import GetHistoricRates
+from ..tools.historicrates import GetHistoricRates
 import seaborn as sns
 import matplotlib.pyplot as plt
 import datetime as datetime
@@ -28,6 +28,7 @@ class CorrelationReport(Task):
 
     granularity = Parameter()
     instruments = []
+    fig = object
 
     def requires(self):
         return [
@@ -93,3 +94,4 @@ class CorrelationReport(Task):
         ):
             os.makedirs(env_workaround().return_env("local_location") + "images/")
         fig.savefig(env_workaround().return_env("local_location") + "images/" + name)
+        self.fig = fig
