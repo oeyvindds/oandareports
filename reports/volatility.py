@@ -6,7 +6,7 @@ import dask.dataframe as dd
 from luigi import build
 from luigi.parameter import Parameter
 from luigi import Task
-from ..tools.historicrates import GetHistoricRates
+from tools.historicrates import GetHistoricRates
 
 
 class VolatilityReport(Task):

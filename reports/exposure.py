@@ -2,9 +2,9 @@ import os
 import seaborn as sns
 import matplotlib.pylab as plt
 from luigi import Task
-from ..helperfiles.task import TargetOutput, Requires, Requirement
-from ..helperfiles.target import ParquetTarget
-from ..tools.tradinghistory import GetTradingHistory
+from helperfiles.task import TargetOutput, Requires, Requirement
+from helperfiles.target import ParquetTarget
+from tools.tradinghistory import GetTradingHistory
 
 """ This script checks your trading history and extract the exposure you have (and had) for each instrument"""
 

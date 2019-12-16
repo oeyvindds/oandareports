@@ -1,12 +1,12 @@
 import os
 import dask.dataframe as dd
 from luigi import Task, build
-from ..helperfiles.task import TargetOutput
+from helperfiles.task import TargetOutput
 from pandas.plotting import register_matplotlib_converters
-from ..tools.historicrates import GetHistoricRates
+from tools.historicrates import GetHistoricRates
 import plotly.express as px
-from ..helperfiles.task import Requires, Requirement
-from ..tools.tradinghistory import GetTradingHistory
+from helperfiles.task import Requires, Requirement
+from tools.tradinghistory import GetTradingHistory
 
 register_matplotlib_converters()
 

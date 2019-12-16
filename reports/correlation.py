@@ -3,7 +3,7 @@ import matplotlib.pylab as plt
 import dask.dataframe as dd
 from luigi import Task, build
 from luigi.parameter import Parameter
-from ..tools.historicrates import GetHistoricRates
+from tools.historicrates import GetHistoricRates
 import seaborn as sns
 import matplotlib.pyplot as plt
 import datetime as datetime

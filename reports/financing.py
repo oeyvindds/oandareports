@@ -3,9 +3,9 @@ import seaborn as sns
 import matplotlib.pylab as plt
 import dask.dataframe as dd
 from luigi import Task
-from ..helperfiles.task import TargetOutput, Requires, Requirement
+from helperfiles.task import TargetOutput, Requires, Requirement
 from pandas.plotting import register_matplotlib_converters
-from ..tools.tradinghistory import GetTradingHistory
+from tools.tradinghistory import GetTradingHistory
 
 register_matplotlib_converters()
 
