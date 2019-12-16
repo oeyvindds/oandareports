@@ -4,6 +4,7 @@ from unittest import TestCase
 import tempfile
 from luigi.contrib.s3 import S3Client, S3Target
 
+
 # Moto just need any keys
 AWS_ACCESS_KEY = "XXXXXXXXXXXXXXXXXXXX"
 AWS_SECRET_KEY = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
@@ -18,9 +19,7 @@ def create_bucket():
 
 class TestS3Target(TestCase):
     """This class tests a number of S3-operations
-    More specific testing of this homework's utilization
-    of s3 is tested in the other files, such as
-    test_luigi.py and test_data.py"""
+    that we need for this project"""
 
     s3_client = S3Client(AWS_ACCESS_KEY, AWS_SECRET_KEY)
     tempFileContents = b"Content for testing S3."
@@ -49,12 +48,12 @@ class TestS3Target(TestCase):
         """
         create_bucket()
 
-        s3_dir = "s3://advpython/pset_5/yelp_data/"
+        s3_dir = "s3://advpython/oanda/data/"
         self.s3_client.mkdir(s3_dir)
 
         self.assertTrue(self.s3_client.exists(s3_dir))
 
-        s3_dest = "s3://advpython/pset_5/new_yelp_data/"
+        s3_dest = "s3://advpython/oanda/new_data/"
         self.s3_client.mkdir(s3_dest)
 
         self.assertTrue(self.s3_client.exists(s3_dest))
